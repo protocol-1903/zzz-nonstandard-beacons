@@ -46,6 +46,7 @@ Yup. Just define your beacons as normal (minus the energy_source, of course) bef
 - There is no way to rotate asymmetric fluid/burner connections. This is not a pressing issue, but will be looked into if enough people request it.
 - Beacons can show 'Working' even if they don't have any modules. This is a minor graphical issue, and probably won't be resolved. The current runtime code is dirt simple, and adding any new features might have drastic effects on UPS.
 - When marked for deconstruction, the beacon's module icons will shift and the modules in the beacon graphics will disappear. This is a natural result of the deconstruction code to allow for better robot and space platform integration. The first issue might be fixed, the latter probably won't.
+- Beacons cannot be selected in a deconstruction planner filter. Not sure why, will try to fix.
 
 If you have any suggestions for future features or compatability, let me know. Creating a discussion on the shelved issues/features makes it more likely that they will be implemented.
 
