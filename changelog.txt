@@ -1,4 +1,11 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.0.1
+Date: 2025-04-22
+  Changes:
+    - Reduced update time by ~35% by altering validity checks to only run when required.
+  Bugfixes:
+    - Fixed a crash when using a deconstruction planner in editor mode and 'instant deconstruct' is enabled
+---------------------------------------------------------------------------------------------------
 Version: 1.0.0
 Date: 2025-04-22
   Features:

@@ -1,7 +1,35 @@
+local check_valid = false
+
 script.on_nth_tick(10, function (event)
-  -- heat powered beacon handler
-  for _, entities in pairs(storage) do
-    if entities[2].valid then
+  -- must check for invalid references
+  if check_valid then
+    check_valid = false
+    for index, entities in pairs(storage) do
+      if entities[2].valid and entities[1].valid then
+        if entities[1].disabled_by_script then
+          if entities[2].status == defines.entity_status.working then
+            entities[1].disabled_by_script = false
+            entities[1].custom_status = {
+              diode = defines.entity_status_diode.green,
+              label = {"entity-status.working"}
+            }
+          end
+        elseif entities[2].status ~= defines.entity_status.working then
+          entities[1].disabled_by_script = true
+          entities[1].custom_status = {
+            diode = defines.entity_status_diode.red,
+            label = {entities[2].prototype.localised_description}
+          }
+        end
+      else
+        if entities[1].valid then entities[1].destroy() end
+        if entities[2].valid then entities[2].destroy() end
+        storage[index] = nil
+      end
+    end
+  else
+    -- everything (should) be valid so dont check
+    for _, entities in pairs(storage) do
       if entities[1].disabled_by_script then
         if entities[2].status == defines.entity_status.working then
           entities[1].disabled_by_script = false
@@ -17,9 +45,6 @@ script.on_nth_tick(10, function (event)
           label = {entities[2].prototype.localised_description}
         }
       end
-    else
-      entities[1].destroy()
-      entities = nil
     end
   end
 end)
@@ -154,3 +179,33 @@ script.on_event(defines.events.on_cancelled_deconstruction, function (event)
   beacon.disabled_by_script = false
 
 end, {{filter = "type", type = "assembling-machine"}})
+
+-- editor mode when in instant deconstruct never registers that entities are deconstructed so i have to remove invalid references
+--- @param event EventData.on_player_deconstructed_area
+script.on_event(defines.events.on_player_deconstructed_area, function (event)
+  -- quit if alt-deconstructing, or if non-editor (cause editor is the reason this handler exists)
+  if event.alt or game.players[event.player_index].controller_type ~= defines.controllers.editor then return end
+  -- recreate deconstruction logic cause... reasons
+  count = event.surface.count_entities_filtered{
+    area = event.area,
+    quality = event.quality,
+    type = "beacon"
+  }
+
+  if count ~= 0 then
+    check_valid = true
+  end
+
+  -- currently nonfunctional for whatever reason, once they can be added to filters then it should be fine
+
+  -- get rid of normal beacons
+  -- for index, entity in pairs(entities) do
+  --   if not prototypes.entity[entity.name:sub(1,-8)] then entities[index] = nil end
+  -- end
+
+  -- local planner = event.stack and event.stack.entity_filters or event.record and event.record.entity_filters
+  -- for _, filter in pairs(planner) do
+    
+  -- end
+
+end)
