@@ -10,7 +10,7 @@ Define your beacon entity like normal, but when setting the energy_source just d
 
 ```
 {
-  name = "heat-beacon",
+  name = "burner-beacon",
   type = "beacon",
   icon = "__base__/graphics/icons/beacon.png",
   flags = {"placeable-player", "player-creation"},
