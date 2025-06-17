@@ -87,7 +87,14 @@ script.on_event(defines.events.on_object_destroyed, function(event)
 
   -- invert control behaviour
   local to_be_enabled = metadata.source.status == defines.entity_status.working
-  metadata.manager.get_or_create_control_behavior().circuit_condition.comparator = to_be_enabled and "=" or "≠"
+  metadata.manager.get_or_create_control_behavior().circuit_condition = {
+    comparator = to_be_enabled and "=" or "≠",
+    constant = 0,
+    first_signal = {
+      name = "nsb-internal-item",
+      type = "item"
+    },
+  }
   
   -- change the beacon state
   if to_be_enabled then
