@@ -77,8 +77,7 @@ data:extend{
     name = "nsb-internal-recipe",
     icon = util.empty_icon().icon,
     category = "nsb-filler-category",
-    ingredients = {{ type = "item", name = "nsb-internal-item", amount = 1}},
-    results = {{ type = "item", name = "nsb-internal-item", amount = 1}}
+    ingredients = {{ type = "item", name = "nsb-internal-item", amount = 1}}
   },
   {
     type = "item",
@@ -94,8 +93,7 @@ data:extend{
     energy_source = {type = "void"},
     crafting_categories = {"nsb-filler-category"},
     fixed_recipe = "nsb-internal-recipe",
-    crafting_speed = 30,
-    selection_box = {{-1,-1},{1,1}},
+    crafting_speed = 60,
     hidden = true,
     hidden_in_factoriopedia = true,
     circuit_wire_max_distance = 1

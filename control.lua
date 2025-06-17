@@ -20,7 +20,6 @@ local function surface_check()
 end
 
 local function register_sacrifice(beacon, source, manager)
-  manager.get_inventory(defines.inventory.crafter_output).clear()
   manager.get_inventory(defines.inventory.crafter_input).insert{
     name = "nsb-internal-item",
     count = 1,
@@ -85,6 +84,9 @@ script.on_event(defines.events.on_object_destroyed, function(event)
   if not metadata then return end
   storage.deathrattles[event.registration_number] = nil
 
+  -- something got removed, do nothing
+  if not metadata.beacon.valid or not metadata.source.valid or not metadata.manager.valid then return end
+
   -- invert control behaviour
   local to_be_enabled = metadata.source.status == defines.entity_status.working
   metadata.manager.get_or_create_control_behavior().circuit_condition = {
@@ -114,14 +116,12 @@ script.on_event(defines.events.on_object_destroyed, function(event)
   register_sacrifice(metadata.beacon, metadata.source, metadata.manager)
 end)
 
-
---[[
 --- @param event EventData.on_player_mined_entity|EventData.on_robot_mined_entity|EventData.script_raised_destroy|EventData.on_space_platform_mined_entity|EventData.on_entity_died
 local function on_deconstructed(event)
   -- make sure its one of our entities
   if not prototypes.entity[event.entity.name .. "-source"] then return end
 
-  source = storage[event.entity.unit_number][2]
+  source = storage[event.entity.unit_number].source
 
   -- attempt to insert fuel into the event buffer, if possible
   if event.buffer and source.get_fuel_inventory() then
@@ -141,7 +141,8 @@ local function on_deconstructed(event)
   end
 
   -- delete source entity
-  storage[event.entity.unit_number][2].destroy()
+  storage[event.entity.unit_number].source.destroy()
+  storage[event.entity.unit_number].manager.destroy()
 
   -- remove storage index
   storage[event.entity.unit_number] = nil
@@ -161,11 +162,10 @@ local function alt_on_deconstructed(event)
   }[1]
 
   -- remove storage index and delete beacon
+  storage[beacon.unit_number].manager.destroy()
   storage[beacon.unit_number] = nil
   beacon.destroy()
 end
-
-]]
 
 script.on_event(defines.events.script_raised_built, on_constructed, event_filter)
 script.on_event(defines.events.script_raised_revive, on_constructed, event_filter)
@@ -174,13 +174,11 @@ script.on_event(defines.events.on_built_entity, on_constructed, event_filter)
 script.on_event(defines.events.on_space_platform_built_entity, on_constructed, event_filter)
 script.on_event(defines.events.on_robot_built_entity, on_constructed, event_filter)
 
--- script.on_event(defines.events.script_raised_destroy, on_deconstructed, event_filter)
--- script.on_event(defines.events.on_robot_mined_entity, alt_on_deconstructed, alt_event_filter)
--- script.on_event(defines.events.on_player_mined_entity, on_deconstructed, event_filter)
--- script.on_event(defines.events.on_space_platform_mined_entity, on_deconstructed, event_filter)
--- script.on_event(defines.events.on_entity_died, alt_on_deconstructed, alt_event_filter)
-
---[[
+script.on_event(defines.events.script_raised_destroy, on_deconstructed, event_filter)
+script.on_event(defines.events.on_robot_mined_entity, alt_on_deconstructed, alt_event_filter)
+script.on_event(defines.events.on_player_mined_entity, on_deconstructed, event_filter)
+script.on_event(defines.events.on_space_platform_mined_entity, on_deconstructed, event_filter)
+script.on_event(defines.events.on_entity_died, alt_on_deconstructed, alt_event_filter)
 
 -- do other stuff when a source is marked for deconstruction (it will be marked instead of the beacon)
 script.on_event(defines.events.on_marked_for_deconstruction, function (event)
@@ -246,21 +244,13 @@ script.on_event(defines.events.on_player_deconstructed_area, function (event)
   }
 
   if count ~= 0 then
-    check_valid = true
+    for index, metadata in pairs(storage) do
+      if index ~= "deathrattles" and (not metadata.beacon.valid or not metadata.source.valid or not metadata.manager.valid) then
+        if metadata.beacon.valid then metadata.beacon.destroy() end
+        if metadata.source.valid then metadata.source.destroy() end
+        if metadata.manager.valid then metadata.manager.destroy() end
+        storage[index] = nil
+      end
+    end
   end
-
-  -- currently nonfunctional for whatever reason, once they can be added to filters then it should be fine
-
-  -- get rid of normal beacons
-  -- for index, entity in pairs(entities) do
-  --   if not prototypes.entity[entity.name:sub(1,-8)] then entities[index] = nil end
-  -- end
-
-  -- local planner = event.stack and event.stack.entity_filters or event.record and event.record.entity_filters
-  -- for _, filter in pairs(planner) do
-    
-  -- end
-
 end)
-
-]]
