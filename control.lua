@@ -1,55 +1,33 @@
 local check_valid = false
 
-script.on_nth_tick(10, function (event)
-  -- must check for invalid references
-  if check_valid then
-    check_valid = false
-    for index, entities in pairs(storage) do
-      if entities[2].valid and entities[1].valid then
-        if entities[1].disabled_by_script then
-          if entities[2].status == defines.entity_status.working then
-            entities[1].disabled_by_script = false
-            entities[1].custom_status = {
-              diode = defines.entity_status_diode.green,
-              label = {"entity-status.working"}
-            }
-          end
-        elseif entities[2].status ~= defines.entity_status.working then
-          entities[1].disabled_by_script = true
-          entities[1].custom_status = {
-            diode = defines.entity_status_diode.red,
-            label = {entities[2].prototype.localised_description}
-          }
-        end
-      else
-        if entities[1].valid then entities[1].destroy() end
-        if entities[2].valid then entities[2].destroy() end
-        storage[index] = nil
-      end
-    end
-  else
-    -- everything (should) be valid so dont check
-    for _, entities in pairs(storage) do
-      if entities[3] then
-        if entities[2].status == defines.entity_status.working then
-          entities[1].disabled_by_script = false
-          entities[1].custom_status = {
-            diode = defines.entity_status_diode.green,
-            label = {"entity-status.working"}
-          }
-          entities[3] = false
-        end
-      elseif entities[2].status ~= defines.entity_status.working then
-        entities[1].disabled_by_script = true
-        entities[1].custom_status = {
-          diode = defines.entity_status_diode.red,
-          label = {entities[2].prototype.localised_description}
-        }
-        entities[3] = true
-      end
-    end
-  end
+script.on_init(function (event)
+  storage.deathrattles = {}
 end)
+
+local function surface_check()
+  if not game.surfaces["nsb-hidden-surface"] then
+    return game.create_surface("nsb-hidden-surface", {
+      default_enable_all_autoplace_controls = false,
+      -- autoplace_settings = {treat_missing_as_default = false},
+      width = 5,
+      height = 5,
+      peaceful_mode = true,
+      no_enemies_mode = true
+    })
+  else
+    return game.surfaces["nsb-hidden-surface"]
+  end
+end
+
+local function register_sacrifice(beacon, source, manager)
+  manager.get_inventory(defines.inventory.crafter_output).clear()
+  manager.get_inventory(defines.inventory.crafter_input).insert{
+    name = "nsb-internal-item",
+    count = 1,
+    health = 0.5,
+  }
+  storage.deathrattles[script.register_on_object_destroyed(manager.get_inventory(defines.inventory.crafter_input)[1].item)] = {beacon = beacon, source = source, manager = manager}
+end
 
 local event_filter = {{filter = "type", type = "beacon"}}
 local alt_event_filter = {{filter = "type", type = "assembling-machine"}}
@@ -58,17 +36,79 @@ local alt_event_filter = {{filter = "type", type = "assembling-machine"}}
 local function on_constructed(event)
   -- make sure its one of our entities
   if not prototypes.entity[event.entity.name .. "-source"] then return end
+  local surface = surface_check()
+  local beacon = event.entity
 
-  source = event.entity.surface.create_entity{
-    name = event.entity.name .. "-source",
-    position = event.entity.position,
-    force = event.entity.force
+  local source = beacon.surface.create_entity{
+    name = beacon.name .. "-source",
+    position = beacon.position,
+    force = beacon.force
   }
 
-  -- save the beacon and source in storage
-  storage[event.entity.unit_number] = {event.entity, source, false}
+  local manager = surface.create_entity{
+    name = "nsb-internal-manager",
+    position = {0, 0},
+    force = beacon.force
+  }
+
+  -- connect source and manager
+  manager.get_wire_connector(defines.wire_connector_id.circuit_green, true).connect_to(source.get_wire_connector(defines.wire_connector_id.circuit_green, true), false, defines.wire_origin.script)
+
+  -- set circuit settings
+  local source_behaviour = source.get_or_create_control_behavior()
+  local manager_behaviour = manager.get_or_create_control_behavior()
+
+  source_behaviour.circuit_read_working = true
+  source_behaviour.circuit_working_signal = {type = "item", name = "nsb-internal-item"}
+  manager_behaviour.circuit_enable_disable = true
+  manager_behaviour.circuit_condition = {
+    comparator = "≠",
+    constant = 0,
+    first_signal = {
+      name = "nsb-internal-item",
+      type = "item"
+    },
+  }
+
+  beacon.disabled_by_script = true
+  beacon.custom_status = {
+    diode = defines.entity_status_diode.red,
+    label = {source.prototype.localised_description}
+  }
+
+  register_sacrifice(beacon, source, manager)
+  storage[beacon.unit_number] = {beacon = beacon, source = source, manager = manager}
 end
 
+script.on_event(defines.events.on_object_destroyed, function(event)
+  local metadata = storage.deathrattles[event.registration_number]
+  if not metadata then return end
+  storage.deathrattles[event.registration_number] = nil
+
+  -- invert control behaviour
+  local to_be_enabled = metadata.source.status == defines.entity_status.working
+  metadata.manager.get_or_create_control_behavior().circuit_condition.comparator = to_be_enabled and "=" or "≠"
+  
+  -- change the beacon state
+  if to_be_enabled then
+    metadata.beacon.disabled_by_script = false
+    metadata.beacon.custom_status = {
+      diode = defines.entity_status_diode.green,
+      label = {"entity-status.working"}
+    }
+  else -- enable
+    metadata.beacon.disabled_by_script = true
+    metadata.beacon.custom_status = {
+      diode = defines.entity_status_diode.red,
+      label = {metadata.source.prototype.localised_description}
+    }
+  end
+
+  register_sacrifice(metadata.beacon, metadata.source, metadata.manager)
+end)
+
+
+--[[
 --- @param event EventData.on_player_mined_entity|EventData.on_robot_mined_entity|EventData.script_raised_destroy|EventData.on_space_platform_mined_entity|EventData.on_entity_died
 local function on_deconstructed(event)
   -- make sure its one of our entities
@@ -118,6 +158,8 @@ local function alt_on_deconstructed(event)
   beacon.destroy()
 end
 
+]]
+
 script.on_event(defines.events.script_raised_built, on_constructed, event_filter)
 script.on_event(defines.events.script_raised_revive, on_constructed, event_filter)
 script.on_event(defines.events.on_cancelled_deconstruction, on_constructed, event_filter)
@@ -125,11 +167,13 @@ script.on_event(defines.events.on_built_entity, on_constructed, event_filter)
 script.on_event(defines.events.on_space_platform_built_entity, on_constructed, event_filter)
 script.on_event(defines.events.on_robot_built_entity, on_constructed, event_filter)
 
-script.on_event(defines.events.script_raised_destroy, on_deconstructed, event_filter)
-script.on_event(defines.events.on_robot_mined_entity, alt_on_deconstructed, alt_event_filter)
-script.on_event(defines.events.on_player_mined_entity, on_deconstructed, event_filter)
-script.on_event(defines.events.on_space_platform_mined_entity, on_deconstructed, event_filter)
-script.on_event(defines.events.on_entity_died, alt_on_deconstructed, alt_event_filter)
+-- script.on_event(defines.events.script_raised_destroy, on_deconstructed, event_filter)
+-- script.on_event(defines.events.on_robot_mined_entity, alt_on_deconstructed, alt_event_filter)
+-- script.on_event(defines.events.on_player_mined_entity, on_deconstructed, event_filter)
+-- script.on_event(defines.events.on_space_platform_mined_entity, on_deconstructed, event_filter)
+-- script.on_event(defines.events.on_entity_died, alt_on_deconstructed, alt_event_filter)
+
+--[[
 
 -- do other stuff when a source is marked for deconstruction (it will be marked instead of the beacon)
 script.on_event(defines.events.on_marked_for_deconstruction, function (event)
@@ -211,3 +255,5 @@ script.on_event(defines.events.on_player_deconstructed_area, function (event)
   -- end
 
 end)
+
+]]

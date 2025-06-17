@@ -41,7 +41,8 @@ for p, prototype in pairs(data.raw.beacon) do
       hidden_in_factoriopedia = true,
       allowed_effects = prototype.allowed_effects,
       module_slots = prototype.module_slots,
-      icon_draw_specification = prototype.icon_draw_specification
+      icon_draw_specification = prototype.icon_draw_specification,
+      circuit_wire_max_distance = 1
     }}
 
     -- change the beacon to be non-interactible by inserters
@@ -68,8 +69,35 @@ data:extend{
   {
     type = "recipe",
     name = "nsb-filler-recipe",
-    category = "nsb-filler-category",
     icon = util.empty_icon().icon,
-    allow_productivity = true
+    category = "nsb-filler-category"
+  },
+  {
+    type = "recipe",
+    name = "nsb-internal-recipe",
+    icon = util.empty_icon().icon,
+    category = "nsb-filler-category",
+    ingredients = {{ type = "item", name = "nsb-internal-item", amount = 1}},
+    results = {{ type = "item", name = "nsb-internal-item", amount = 1}}
+  },
+  {
+    type = "item",
+    name = "nsb-internal-item",
+    icon = util.empty_icon().icon,
+    stack_size = 1
+  },
+  {
+    type = "assembling-machine",
+    name = "nsb-internal-manager",
+    icon = util.empty_icon().icon,
+    energy_usage = "1W",
+    energy_source = {type = "void"},
+    crafting_categories = {"nsb-filler-category"},
+    fixed_recipe = "nsb-internal-recipe",
+    crafting_speed = 30,
+    selection_box = {{-1,-1},{1,1}},
+    hidden = true,
+    hidden_in_factoriopedia = true,
+    circuit_wire_max_distance = 1
   }
 }
