@@ -30,13 +30,14 @@ script.on_nth_tick(10, function (event)
   else
     -- everything (should) be valid so dont check
     for _, entities in pairs(storage) do
-      if entities[1].disabled_by_script then
+      if entities[3] then
         if entities[2].status == defines.entity_status.working then
           entities[1].disabled_by_script = false
           entities[1].custom_status = {
             diode = defines.entity_status_diode.green,
             label = {"entity-status.working"}
           }
+          entities[3] = false
         end
       elseif entities[2].status ~= defines.entity_status.working then
         entities[1].disabled_by_script = true
@@ -44,6 +45,7 @@ script.on_nth_tick(10, function (event)
           diode = defines.entity_status_diode.red,
           label = {entities[2].prototype.localised_description}
         }
+        entities[3] = true
       end
     end
   end
@@ -64,7 +66,7 @@ local function on_constructed(event)
   }
 
   -- save the beacon and source in storage
-  storage[event.entity.unit_number] = {event.entity, source, defines.entity_status.working}
+  storage[event.entity.unit_number] = {event.entity, source, false}
 end
 
 --- @param event EventData.on_player_mined_entity|EventData.on_robot_mined_entity|EventData.script_raised_destroy|EventData.on_space_platform_mined_entity|EventData.on_entity_died
