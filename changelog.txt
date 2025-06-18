@@ -1,6 +1,6 @@
 ---------------------------------------------------------------------------------------------------
 Version: 1.1.0
-Date: ????
+Date: 2025-06-18
   Features:
     - Using quezler certified jankery, you will now have zero script overhead when idle/full power. There will only be overhead when the state changes to/from active.
 ---------------------------------------------------------------------------------------------------

@@ -2,6 +2,9 @@
 
 # This mod does not add new beacons unless you use the example mod setting. Another mod must be used to add new beacons.
 
+### NOW WITH NO RUNTIME OVERHEAD! PLAYERS REJOICE WITH UPS FREE BEACONS!
+Thanks to quezler, nonstandard beacons now have Zero runtime overhead on idle/fully powered bases. The only scripting is done when the beacon turns on/off.
+
 ## What?
 You can now create and run non-electric beacons, and this mod will handle all runtime scripting related to them.
 
@@ -44,7 +47,7 @@ Yup. Just define your beacons as normal (minus the energy_source, of course) bef
 # Known Issues/Future Features
 - There is currently no way to see the fuel inventory. This will eventually be fixed by a custom GUI implementation.
 - There is no way to rotate asymmetric fluid/burner connections. This is not a pressing issue, but will be looked into if enough people request it.
-- Beacons can show 'Working' even if they don't have any modules. This is a minor graphical issue, and probably won't be resolved. The current runtime code is dirt simple, and adding any new features might have drastic effects on UPS.
+- Beacons can show 'Working' even if they don't have any modules. This is a minor graphical issue, and probably won't be resolved.
 - When marked for deconstruction, the beacon's module icons will shift and the modules in the beacon graphics will disappear. This is a natural result of the deconstruction code to allow for better robot and space platform integration. The first issue might be fixed, the latter probably won't.
 - Beacons cannot be selected in a deconstruction planner filter. Not sure why, will try to fix.
 - Undo/Redo doesn't work. Not sure why.
