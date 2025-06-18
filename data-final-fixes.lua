@@ -77,7 +77,7 @@ data:extend{
     name = "nsb-internal-recipe",
     icon = util.empty_icon().icon,
     category = "nsb-filler-category",
-    ingredients = {{ type = "item", name = "nsb-internal-item", amount = 1}}
+    ingredients = {{ type = "item", name = "nsb-internal-item", amount = 1, ignored_by_stats = 1}}
   },
   {
     type = "item",
