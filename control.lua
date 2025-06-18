@@ -5,17 +5,10 @@ script.on_init(function (event)
 end)
 
 local function surface_check()
-  if not game.surfaces["nsb-hidden-surface"] then
-    return game.create_surface("nsb-hidden-surface", {
-      default_enable_all_autoplace_controls = false,
-      -- autoplace_settings = {treat_missing_as_default = false},
-      width = 5,
-      height = 5,
-      peaceful_mode = true,
-      no_enemies_mode = true
-    })
+  if not game.planets["nsb-internal-planet"].surface then
+    return game.planets["nsb-internal-planet"].create_surface()
   else
-    return game.surfaces["nsb-hidden-surface"]
+    return game.planets["nsb-internal-planet"].surface
   end
 end
 

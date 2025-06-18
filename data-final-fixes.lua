@@ -97,5 +97,13 @@ data:extend{
     hidden = true,
     hidden_in_factoriopedia = true,
     circuit_wire_max_distance = 1
+  },
+  {
+    type = "planet",
+    name = "nsb-internal-planet",
+    icon = util.empty_icon().icon,
+    distance = 0,
+    orientation = 0,
+    hidden = true
   }
 }
