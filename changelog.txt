@@ -1,4 +1,9 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.1.3
+Date: ????
+  Changes:
+    - Removed stray on_cancelled_deconstruction event registration that was overridden
+---------------------------------------------------------------------------------------------------
 Version: 1.1.2
 Date: 2025-06-20
   Changes:
