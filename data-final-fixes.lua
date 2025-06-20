@@ -70,22 +70,25 @@ data:extend{
     type = "recipe",
     name = "nsb-filler-recipe",
     icon = util.empty_icon().icon,
-    category = "nsb-filler-category"
+    category = "nsb-filler-category",
+    hidden_in_factoriopedia = true
   },
-  {
+  { -- hidden recipe used to check if machine is working
     type = "recipe",
     name = "nsb-internal-recipe",
     icon = util.empty_icon().icon,
     category = "nsb-filler-category",
-    ingredients = {{ type = "item", name = "nsb-internal-item", amount = 1, ignored_by_stats = 1}}
+    ingredients = {{ type = "item", name = "nsb-internal-item", amount = 1, ignored_by_stats = 1}},
+    hidden_in_factoriopedia = true
   },
-  {
+  { -- hidden item for recipe and signals, can use existing item but this one is garunteed to work
     type = "item",
     name = "nsb-internal-item",
     icon = util.empty_icon().icon,
-    stack_size = 1
+    stack_size = 1,
+    hidden_in_factoriopedia = true
   },
-  {
+  { -- hidden assembling machine to craft the aforementioned recipe
     type = "assembling-machine",
     name = "nsb-internal-manager",
     icon = util.empty_icon().icon,
@@ -95,15 +98,6 @@ data:extend{
     fixed_recipe = "nsb-internal-recipe",
     crafting_speed = 60,
     hidden = true,
-    hidden_in_factoriopedia = true,
-    circuit_wire_max_distance = 1
-  },
-  {
-    type = "planet",
-    name = "nsb-internal-planet",
-    icon = util.empty_icon().icon,
-    distance = 0,
-    orientation = 0,
-    hidden = true
+    hidden_in_factoriopedia = true
   }
 }

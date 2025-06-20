@@ -4,14 +4,6 @@ script.on_init(function (event)
   storage.deathrattles = {}
 end)
 
-local function surface_check()
-  if not game.planets["nsb-internal-planet"].surface then
-    return game.planets["nsb-internal-planet"].create_surface()
-  else
-    return game.planets["nsb-internal-planet"].surface
-  end
-end
-
 local function register_sacrifice(beacon, source, manager)
   manager.get_inventory(defines.inventory.crafter_input).insert{
     name = "nsb-internal-item",
@@ -28,7 +20,6 @@ local alt_event_filter = {{filter = "type", type = "assembling-machine"}}
 local function on_constructed(event)
   -- make sure its one of our entities
   if not prototypes.entity[event.entity.name .. "-source"] then return end
-  local surface = surface_check()
   local beacon = event.entity
 
   local source = beacon.surface.create_entity{
@@ -37,9 +28,9 @@ local function on_constructed(event)
     force = beacon.force
   }
 
-  local manager = surface.create_entity{
+  local manager = beacon.surface.create_entity{
     name = "nsb-internal-manager",
-    position = {0, 0},
+    position = beacon.position,
     force = beacon.force
   }
 
@@ -98,7 +89,7 @@ script.on_event(defines.events.on_object_destroyed, function(event)
       diode = defines.entity_status_diode.green,
       label = {"entity-status.working"}
     }
-  else -- enable
+  else
     metadata.beacon.disabled_by_script = true
     metadata.beacon.custom_status = {
       diode = defines.entity_status_diode.red,
