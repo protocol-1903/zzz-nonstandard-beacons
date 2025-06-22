@@ -1,6 +1,3 @@
-local function register_sacrifice(beacon, source, manager)
-end
-
 for index, metadata in pairs(storage) do
   if index ~= "deathrattles" then
     local manager = metadata.beacon.surface.create_entity{

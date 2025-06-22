@@ -71,6 +71,7 @@ data:extend{
     name = "nsb-filler-recipe",
     icon = util.empty_icon().icon,
     category = "nsb-filler-category",
+    hidden = true,
     hidden_in_factoriopedia = true
   },
   { -- hidden recipe used to check if machine is working
@@ -79,13 +80,22 @@ data:extend{
     icon = util.empty_icon().icon,
     category = "nsb-filler-category",
     ingredients = {{ type = "item", name = "nsb-internal-item", amount = 1, ignored_by_stats = 1}},
-    hidden_in_factoriopedia = true
+    hidden = true,
+    hidden_in_factoriopedia = true,
+    -- fuel_category = "nsb-internal-fuel-category"
   },
+  -- {
+  --   type = "fuel-category",
+  --   name = "nsb-internal-fuel-category",
+  --   hidden = true,
+  --   hidden_in_factoriopedia = true
+  -- },
   { -- hidden item for recipe and signals, can use existing item but this one is garunteed to work
     type = "item",
     name = "nsb-internal-item",
     icon = util.empty_icon().icon,
     stack_size = 1,
+    hidden = true,
     hidden_in_factoriopedia = true
   },
   { -- hidden assembling machine to craft the aforementioned recipe
