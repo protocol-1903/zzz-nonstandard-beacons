@@ -1,6 +1,6 @@
 ---------------------------------------------------------------------------------------------------
 Version: 1.2.0
-Date: ????
+Date: 2025-06-23
   Changes:
     - Improved runtime script event registration to only activate when a modded beacon is involved
     - Improved area marked deconstruction searching to be faster when applied
