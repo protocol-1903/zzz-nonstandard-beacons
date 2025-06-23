@@ -24,11 +24,11 @@ for p, prototype in pairs(data.raw.beacon) do
         "not-blueprintable",
         "not-deconstructable",
         "no-copy-paste",
-        "not-selectable-in-game",
         "not-upgradable",
         "placeable-neutral",
         "player-creation"
       },
+      selectable_in_game = false,
       effect_receiver = {
         uses_beacon_effects = false,
         uses_module_effects = false,
@@ -37,16 +37,21 @@ for p, prototype in pairs(data.raw.beacon) do
       collision_box = prototype.collision_box,
       collision_mask = { layers = {} },
       selection_box = prototype.selection_box,
-      selection_priority = 1,
+      selection_priority = 0,
       hidden = true,
       hidden_in_factoriopedia = true
     }}
 
-    -- change the beacon to be non-interactible by inserters
-    prototype.flags = prototype.flags or {}
-    prototype.flags[#prototype.flags+1] = "no-automated-item-insertion"
-    prototype.flags[#prototype.flags+1] = "no-automated-item-removal"
-    
+    -- change the beacon to be non-interactible by inserters if burner powered
+    if prototype.energy_source.type == "burner" then
+      prototype.flags = prototype.flags or {}
+      prototype.flags[#prototype.flags+1] = "no-automated-item-insertion"
+      prototype.flags[#prototype.flags+1] = "no-automated-item-removal"
+    else -- allow module insertion if not a burner
+      data.raw["assembling-machine"][p .. "-source"].flags[#data.raw["assembling-machine"][p .. "-source"].flags+1] = "no-automated-item-insertion"
+      data.raw["assembling-machine"][p .. "-source"].flags[#data.raw["assembling-machine"][p .. "-source"].flags+1] = "no-automated-item-removal"
+    end
+
     -- override the energy source
     prototype.energy_source = {type = "void"}
   end

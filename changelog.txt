@@ -5,7 +5,9 @@ Date: ????
     - Improved runtime script event registration to only activate when a modded beacon is involved
     - Improved area marked deconstruction searching to be faster when applied
     - Expanded possible status messages to be more complete, covering most possible operational descriptions
+    - Allow automated insertion and removal of modules via inserters on fluid and heat powered beacons
   Bugfixes:
+    - Fixed source being selectable in game
     - Fixed a crash when marking entities for deconstruction
     - Fixed an issue where the beacon could not be selected in a deconstruction planner
     - Fixed shenanegins when marking beacons for deconstruction
