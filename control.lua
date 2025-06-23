@@ -12,6 +12,10 @@ script.on_init(function (event)
   storage.deathrattles = {}
 end)
 
+script.on_configuration_changed(function (event)
+  storage.deathrattles = storage.deathrattles or {}
+end)
+
 local function register_sacrifice(beacon, source, manager)
   manager.get_inventory(defines.inventory.crafter_input).insert{
     name = "nsb-internal-item",
