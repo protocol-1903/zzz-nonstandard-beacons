@@ -11,6 +11,7 @@ Date: ????
     - Fixed shenanegins when marking beacons for deconstruction
     - Fixed beacons having the wrong status in certain cases
     - Fixed the UndoRedoQueue not working properly with modded beacons
+    - Fixed potential crashes when migrating from older saves
 ---------------------------------------------------------------------------------------------------
 Version: 1.1.3
 Date: 2025-06-22
