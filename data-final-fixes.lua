@@ -1,10 +1,5 @@
 for p, prototype in pairs(data.raw.beacon) do
   if prototype.energy_source.type ~= "void" and prototype.energy_source.type ~= "electric" then
-    -- modify the energy source as needed
-    if prototype.energy_source.type == "burner" then
-      prototype.energy_source.fuel_categories[#prototype.energy_source.fuel_categories+1] = "nsb-internal-fuel-category"
-    end
-
     -- create energy source entity, storing the 'disabled' localisation to simplify runtime scripting
     data:extend{{
       type = "assembling-machine",
