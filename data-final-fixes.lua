@@ -1,5 +1,10 @@
 for p, prototype in pairs(data.raw.beacon) do
   if prototype.energy_source.type ~= "void" and prototype.energy_source.type ~= "electric" then
+    -- modify the energy source as needed
+    if prototype.energy_source.type == "burner" then
+      prototype.energy_source.fuel_categories[#prototype.energy_source.fuel_categories+1] = "nsb-internal-fuel-category"
+    end
+
     -- create energy source entity, storing the 'disabled' localisation to simplify runtime scripting
     data:extend{{
       type = "assembling-machine",
@@ -22,6 +27,7 @@ for p, prototype in pairs(data.raw.beacon) do
         "not-repairable",
         "not-on-map",
         "not-blueprintable",
+        "not-deconstructable",
         "no-copy-paste",
         "not-selectable-in-game",
         "not-upgradable",
@@ -38,21 +44,13 @@ for p, prototype in pairs(data.raw.beacon) do
       selection_box = prototype.selection_box,
       selection_priority = 1,
       hidden = true,
-      hidden_in_factoriopedia = true,
-      allowed_effects = prototype.allowed_effects,
-      module_slots = prototype.module_slots,
-      icon_draw_specification = prototype.icon_draw_specification,
-      circuit_wire_max_distance = 1
+      hidden_in_factoriopedia = true
     }}
 
     -- change the beacon to be non-interactible by inserters
     prototype.flags = prototype.flags or {}
     prototype.flags[#prototype.flags+1] = "no-automated-item-insertion"
     prototype.flags[#prototype.flags+1] = "no-automated-item-removal"
-    prototype.flags[#prototype.flags+1] = "not-deconstructable"
-
-    -- have the beacon point to the source when deconstructed
-    prototype.deconstruction_alternative = p .. "-source"
     
     -- override the energy source
     prototype.energy_source = {type = "void"}
@@ -81,15 +79,8 @@ data:extend{
     category = "nsb-filler-category",
     ingredients = {{ type = "item", name = "nsb-internal-item", amount = 1, ignored_by_stats = 1}},
     hidden = true,
-    hidden_in_factoriopedia = true,
-    -- fuel_category = "nsb-internal-fuel-category"
+    hidden_in_factoriopedia = true
   },
-  -- {
-  --   type = "fuel-category",
-  --   name = "nsb-internal-fuel-category",
-  --   hidden = true,
-  --   hidden_in_factoriopedia = true
-  -- },
   { -- hidden item for recipe and signals, can use existing item but this one is garunteed to work
     type = "item",
     name = "nsb-internal-item",

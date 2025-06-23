@@ -47,10 +47,7 @@ Yup. Just define your beacons as normal (minus the energy_source, of course) bef
 # Known Issues/Future Features
 - There is currently no way to see the fuel inventory. This will eventually be fixed by a custom GUI implementation.
 - There is no way to rotate asymmetric fluid/burner connections. This is not a pressing issue, but will be looked into if enough people request it.
-- Beacons can show 'Working' even if they don't have any modules. This is a minor graphical issue, and probably won't be resolved.
-- When marked for deconstruction, the beacon's module icons will shift and the modules in the beacon graphics will disappear. This is a natural result of the deconstruction code to allow for better robot and space platform integration. The first issue might be fixed, the latter probably won't.
-- Beacons cannot be selected in a deconstruction planner filter. Not sure why, will try to fix.
-- Undo/Redo doesn't work. Not sure why.
+- Most of the previous issues were resolved in version 1.2.0. Yay!
 
 If you have any suggestions for future features or compatability, let me know. Creating a discussion on the shelved issues/features makes it more likely that they will be implemented.
 
