@@ -134,10 +134,10 @@ script.on_event(defines.events.script_raised_built, on_created, event_filter)
 script.on_event(defines.events.script_raised_revive, on_created, event_filter)
 
 script.on_event(defines.events.on_player_mined_entity, on_destroyed, event_filter)
-script.on_event(defines.events.on_robot_mined_entity, on_destroyed, alt_event_filter)
+script.on_event(defines.events.on_robot_mined_entity, on_destroyed, event_filter)
 script.on_event(defines.events.on_space_platform_mined_entity, on_destroyed, event_filter)
 script.on_event(defines.events.script_raised_destroy, on_destroyed, event_filter)
-script.on_event(defines.events.on_entity_died, on_destroyed, alt_event_filter)
+script.on_event(defines.events.on_entity_died, on_destroyed, event_filter)
 
 -- disable the source if marked for deconstruction
 script.on_event(defines.events.on_marked_for_deconstruction, function (event)

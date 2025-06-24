@@ -1,4 +1,16 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.2.1
+Date: 2025-06-24
+  Features:
+    - Beacons now support allowed_effects and effect_reciever, meaning they can be affected by the modules in themselves and nearby beacons. This is however only limited to consumption and pollution as all other effects have no effect.
+  Changes:
+    - Updated example beacons to use new allowed_effects and effect_reciever
+  Bugfixes:
+    - Fixed manager entity sometimes sticking out of beacons
+    - Fixed manager entity missing proper flags to make it completely hidden
+    - Fixed a crash when an entity is destroyed
+    - Fixed a crash when an entity is mined by a robot
+---------------------------------------------------------------------------------------------------
 Version: 1.2.0
 Date: 2025-06-23
   Changes:

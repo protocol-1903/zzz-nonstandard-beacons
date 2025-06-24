@@ -1,5 +1,16 @@
 for p, prototype in pairs(data.raw.beacon) do
   if prototype.energy_source.type ~= "void" and prototype.energy_source.type ~= "electric" then
+    -- validate optional properties
+    prototype.effect_receiver = prototype.effect_receiver or {}
+    local effects = prototype.allowed_effects
+    prototype.allowed_effects = {}
+    for _, effect in pairs(effects) do
+      -- only allow pollution and consumption effects
+      if effect == "consumption" or effect == "pollution" then
+        prototype.allowed_effects[#prototype.allowed_effects+1] = effect
+      end
+    end
+    
     -- create energy source entity, storing the 'disabled' localisation to simplify runtime scripting
     data:extend{{
       type = "assembling-machine",
@@ -25,15 +36,16 @@ for p, prototype in pairs(data.raw.beacon) do
         "not-deconstructable",
         "no-copy-paste",
         "not-upgradable",
-        "placeable-neutral",
-        "player-creation"
+        "placeable-neutral"
       },
       selectable_in_game = false,
+      allow_copy_paste = false,
       effect_receiver = {
-        uses_beacon_effects = false,
-        uses_module_effects = false,
-        uses_surface_effects = false
+        uses_beacon_effects = prototype.effect_receiver.uses_beacon_effects or false,
+        uses_module_effects = prototype.effect_receiver.uses_module_effects or false,
+        uses_surface_effects = prototype.effect_receiver.uses_surface_effects or false
       },
+      allowed_effects = prototype.allowed_effects,
       collision_box = prototype.collision_box,
       collision_mask = { layers = {} },
       selection_box = prototype.selection_box,
@@ -54,6 +66,9 @@ for p, prototype in pairs(data.raw.beacon) do
 
     -- override the energy source
     prototype.energy_source = {type = "void"}
+
+    -- clear custom flags
+    prototype.effect_receiver = nil
   end
 end
 
@@ -93,6 +108,20 @@ data:extend{
     type = "assembling-machine",
     name = "nsb-internal-manager",
     icon = util.empty_icon().icon,
+    flags = {
+      "placeable-off-grid",
+      "not-repairable",
+      "not-on-map",
+      "not-blueprintable",
+      "not-deconstructable",
+      "no-copy-paste",
+      "not-upgradable",
+      "placeable-neutral",
+      "no-automated-item-removal",
+      "no-automated-item-insertion"
+    },
+    allow_copy_paste = false,
+    selectable_in_game = false,
     energy_usage = "1W",
     energy_source = {type = "void"},
     crafting_categories = {"nsb-filler-category"},
