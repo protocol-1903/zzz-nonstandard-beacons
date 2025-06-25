@@ -43,8 +43,8 @@ Define your beacon entity like normal, but when setting the energy_source just d
 
 ## Additional features
 Nonstandard Beacons includes some new features that you can use on custom beacons, just define them as follows:
-- `prototype.effect_reciever = [EffectReciever](https://lua-api.factorio.com/latest/types/EffectReceiver.html)` allows the beacon source to be affected by surface and/or nearby beacon effects. If the effect category is not explicitly allowed, the beacon will default to ignoring it. Requires `prototype.allowed_effects` to have an effect.
-- `prototype.allowed_effects = [EffectTypeLimitation](https://lua-api.factorio.com/latest/types/EffectTypeLimitation.html)` defines which effects the beacon can be effected with. Internally restricted to `consumption` and `pollution` because all other effects don't mean anything. If the effect is not explicitly allowed, the beacon will default to ignoring it. Requires `prototype.effect_reciever` to have an effect.
+- `prototype.effect_reciever = [EffectReciever](https://lua-api.factorio.com/latest/types/EffectReceiver.html)` allows the beacon source to be affected by surface and/or nearby beacon effects. If the effect category is not explicitly allowed, the beacon will default to ignoring it.
+- `prototype.allowed_effects = [EffectTypeLimitation](https://lua-api.factorio.com/latest/types/EffectTypeLimitation.html)` defines which effects the beacon can be effected with. Internally restricted to `consumption` and `pollution` because all other effects don't mean anything. Requires `prototype.effect_reciever` to be defined, defaults to `{"consumption", "pollution"}` if not specified.
 
 # Known Issues/Future Features
 - There is currently no way to see the fuel inventory. This will eventually be fixed by a custom GUI implementation.

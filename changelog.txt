@@ -1,4 +1,10 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.2.2
+Date: ????
+  Changes:
+    - allowed_effects is now optional, defaulting to consumption and pollution if not specified
+    - The game will error if allowed_effects is defined but effect_reciever is not
+---------------------------------------------------------------------------------------------------
 Version: 1.2.1
 Date: 2025-06-24
   Features:

@@ -1,11 +1,13 @@
 for p, prototype in pairs(data.raw.beacon) do
   if prototype.energy_source.type ~= "void" and prototype.energy_source.type ~= "electric" then
     -- validate optional properties
-    prototype.effect_receiver = prototype.effect_receiver or {}
-    local effects = prototype.allowed_effects
+    if prototype.allowed_effects and not prototype.effect_receiver then
+      error("Failed to load nonstandard beacon " .. p .. "\nprototype.allowed_effects was defined but prototype.effect_receiver was not")
+    end
+
+    local effects = prototype.allowed_effects or {"consumption", "pollution"}
     prototype.allowed_effects = {}
     for _, effect in pairs(effects) do
-      -- only allow pollution and consumption effects
       if effect == "consumption" or effect == "pollution" then
         prototype.allowed_effects[#prototype.allowed_effects+1] = effect
       end
@@ -40,10 +42,10 @@ for p, prototype in pairs(data.raw.beacon) do
       },
       selectable_in_game = false,
       allow_copy_paste = false,
-      effect_receiver = {
-        uses_beacon_effects = prototype.effect_receiver.uses_beacon_effects or false,
-        uses_module_effects = prototype.effect_receiver.uses_module_effects or false,
-        uses_surface_effects = prototype.effect_receiver.uses_surface_effects or false
+      effect_receiver = prototype.effect_receiver and {
+        uses_beacon_effects = prototype.effect_receiver.uses_beacon_effects,
+        uses_module_effects = prototype.effect_receiver.uses_module_effects,
+        uses_surface_effects = prototype.effect_receiver.uses_surface_effects
       },
       allowed_effects = prototype.allowed_effects,
       collision_box = prototype.collision_box,
