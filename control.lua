@@ -1,3 +1,8 @@
+local event_filter = assert(prototypes.mod_data["nsb-beacon-data"].data.event, "error: nonstandard beacon event filter not found!")
+local modded_beacons = assert(prototypes.mod_data["nsb-beacon-data"].data.modded_beacons, "error: nonstandard beacon data not found!")
+
+log(serpent.block(modded_beacons))
+
 local function make_modded(beacon)
   local source = storage.beacons[beacon.unit_number].source
   local manager = storage.beacons[beacon.unit_number].manager
@@ -53,11 +58,6 @@ local function register_sacrifice(manager, metadata)
   }
   storage.deathrattles[script.register_on_object_destroyed(manager.get_inventory(defines.inventory.crafter_input)[1].item)] = metadata
 end
-
-local event_filter = assert(prototypes.mod_data["nsb-beacon-data"].data.event, "error: nonstandard beacon event filter not found!")
-local modded_beacons = assert(prototypes.mod_data["nsb-beacon-data"].data.modded_beacons, "error: nonstandard beacon data not found!")
-
-log(serpent.block(modded_beacons))
 
 local function attempt_migration(force)
   -- attempt to update migrated entities
@@ -322,6 +322,9 @@ local function on_destroyed(event)
   storage.beacons[event.entity.unit_number] = nil
 end
 
+-- don't register events if nothing is included
+if #event_filter == 0 then return end
+
 script.on_event(defines.events.on_built_entity, on_created, event_filter)
 script.on_event(defines.events.on_robot_built_entity, on_created, event_filter)
 script.on_event(defines.events.on_space_platform_built_entity, on_created, event_filter)
@@ -371,3 +374,10 @@ script.on_event(defines.events.on_player_deconstructed_area, function (event)
 end)
 
 --- on upgrade/replacement, for quality/source changes
+
+script.on_event(defines.events.script_raised_teleported, function (event)
+  if not storage.beacons[event.entity.unit_number] then return end
+  for _, entity in pairs(storage.beacons[event.entity.unit_number]) do
+    entity.teleport(event.entity.position)
+  end
+end, event_filter)
