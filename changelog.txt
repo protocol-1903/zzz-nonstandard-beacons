@@ -1,9 +1,24 @@
 ---------------------------------------------------------------------------------------------------
 Version: 1.3.0
-Date: ????
+Date: 2025-07-13
+  Features:
+    - Added a custom variation of the electric beacon to use new features (energy_source.type = "electric-2-electric-boogaloo") thanks for the name @Osmo
+    - Added the ability for beacons to use effect_reciever.uses_module_effects, which means the beacon will have it's source effected by the modules it's using.
+    - Added quality verification such that quality enabled nonstandard beacons match up their beacon supposed stats to their source stats, if uses_module_effects is enabled
+    - Added automatic migrations whenever mods change to check if any of the nonstandard beacons should be updated
+    - Added a command "update_beacons" to update beacons, used for mod development and fixing critical issues. Use -help ingame for a complete description
+    - Added validation to automatic migrations to check if any entities have been removed or invalidated on mod change
+    - Added a required dependency on module inserter
   Changes:
+    - Removed the allowed_effects custom field because it overrode the existing field under the same name and did literally nothing
+    - The mod will error if uses_module_effects and uses_beacon_effects are both true, only one can be used at a time for now due to implementation restrictions
+    - Event filters are generated during the prototype stage, vastly speeding up the load time of saves with no impact on game load speed
+    - Bumped minimum Factorio version to 2.0.58 to use ModDataPrototype
+    - Added validation to entity migration scripts to check if any entities have been removed or invalidated when the mod was updated
   Bugfixes:
     - Fixed a crash when adding to a save that did not already have the mod
+    - Fixed allowed_effects being culled resulting in modules not being insertable into beacons :D
+    - Fixed quality scaling not applying regarding the power usage of the source entities
 ---------------------------------------------------------------------------------------------------
 Version: 1.2.1
 Date: 2025-06-24

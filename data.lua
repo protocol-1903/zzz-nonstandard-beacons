@@ -1,6 +1,38 @@
 if settings.startup["nsb-include-example-beacons"].value then
   data:extend{
     {
+      name = "electric-beacon",
+      type = "beacon",
+      icon = "__base__/graphics/icons/beacon.png",
+      flags = {"placeable-player", "player-creation"},
+      minable = {mining_time = 0.5, result = "electric-beacon"},
+      collision_box = {{-1.2, -1.2}, {1.2, 1.2}},
+      selection_box = {{-1.5, -1.5}, {1.5, 1.5}},
+      drawing_box_vertical_extension = 0.7,
+      allowed_effects = {"consumption", "speed", "pollution"},
+      graphics_set = require("__base__.prototypes.entity.beacon-animations"),
+      energy_usage = "480kW",
+      energy_source = {
+        type = "electric-2-electric-boogaloo",
+        usage_priority = "secondary-input"
+      },
+      effect_receiver = {
+        uses_beacon_effects = true,
+        uses_module_effects = false,
+        uses_surface_effects = false
+      },
+      radius_visualisation_picture = {
+        filename = "__base__/graphics/entity/beacon/beacon-radius-visualization.png",
+        priority = "extra-high-no-scale",
+        width = 10,
+        height = 10
+      },
+      supply_area_distance = 3,
+      distribution_effectivity = 1.5,
+      module_slots = 2,
+      icons_positioning = {{inventory_index = defines.inventory.beacon_modules, shift = {0, 0}, multi_row_initial_height_modifier = -0.3, max_icons_per_row = 2}}
+    },
+    {
       name = "burner-beacon",
       type = "beacon",
       icon = "__base__/graphics/icons/beacon.png",
@@ -26,11 +58,10 @@ if settings.startup["nsb-include-example-beacons"].value then
           starting_frame_deviation = 60
         }}
       },
-      allowed_effects = {"consumption", "pollution"},
       effect_receiver = {
-        uses_beacon_effects = true,
+        uses_beacon_effects = false,
         uses_module_effects = true,
-        uses_surface_effects = true
+        uses_surface_effects = false
       },
       radius_visualisation_picture = {
         filename = "__base__/graphics/entity/beacon/beacon-radius-visualization.png",
@@ -79,12 +110,6 @@ if settings.startup["nsb-include-example-beacons"].value then
           starting_frame_deviation = 60
         }}
       },
-      allowed_effects = {"consumption", "pollution"},
-      effect_receiver = {
-        uses_beacon_effects = true,
-        uses_module_effects = true,
-        uses_surface_effects = true
-      },
       radius_visualisation_picture = {
         filename = "__base__/graphics/entity/beacon/beacon-radius-visualization.png",
         priority = "extra-high-no-scale",
@@ -122,12 +147,6 @@ if settings.startup["nsb-include-example-beacons"].value then
           { position = {-1, 0}, direction = defines.direction.west }
         }
       },
-      allowed_effects = {"consumption", "pollution"},
-      effect_receiver = {
-        uses_beacon_effects = true,
-        uses_module_effects = true,
-        uses_surface_effects = true
-      },
       radius_visualisation_picture = {
         filename = "__base__/graphics/entity/beacon/beacon-radius-visualization.png",
         priority = "extra-high-no-scale",
@@ -147,6 +166,13 @@ if settings.startup["nsb-include-example-beacons"].value then
       stack_size = 20
     },
     {
+      name = "electric-beacon",
+      type = "item",
+      icon = "__base__/graphics/icons/beacon.png",
+      place_result = "electric-beacon",
+      stack_size = 20
+    },
+    {
       name = "fluid-beacon",
       type = "item",
       icon = "__base__/graphics/icons/beacon.png",
@@ -159,6 +185,20 @@ if settings.startup["nsb-include-example-beacons"].value then
       icon = "__base__/graphics/icons/beacon.png",
       place_result = "heat-beacon",
       stack_size = 20
+    },
+    {
+      type = "recipe",
+      name = "electric-beacon",
+      enabled = false,
+      energy_required = 15,
+      ingredients =
+      {
+        {type = "item", name = "electronic-circuit", amount = 20},
+        {type = "item", name = "advanced-circuit", amount = 20},
+        {type = "item", name = "steel-plate", amount = 10},
+        {type = "item", name = "copper-cable", amount = 10}
+      },
+      results = {{type = "item", name = "electric-beacon", amount = 1}}
     },
     {
       type = "recipe",
@@ -209,6 +249,10 @@ if settings.startup["nsb-include-example-beacons"].value then
     {
       type = "unlock-recipe",
       recipe = "beacon"
+    },
+    {
+      type = "unlock-recipe",
+      recipe = "electric-beacon"
     },
     {
       type = "unlock-recipe",
