@@ -95,9 +95,7 @@ if settings.startup["nsb-include-example-beacons"].value then
           pipe_covers = pipecoverspictures(),
           pipe_connections = {
             { flow_direction = "input-output", direction = defines.direction.north, position = {0, -1} },
-            { flow_direction = "input-output", direction = defines.direction.east, position = {1, 0} },
-            { flow_direction = "input-output", direction = defines.direction.south, position = {0, 1} },
-            { flow_direction = "input-output", direction = defines.direction.west, position = {-1, 0} }
+            { flow_direction = "input-output", direction = defines.direction.south, position = {0, 1} }
           },
           production_type = "input",
           filter = "steam"

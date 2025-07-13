@@ -1,4 +1,9 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.3.4
+Date: 2025-07-13
+  Features:
+    - Allowed the rotation and counterrotation of included source pipe and heat connections
+---------------------------------------------------------------------------------------------------
 Version: 1.3.3
 Date: 2025-07-13
   Changes:

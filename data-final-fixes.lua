@@ -219,6 +219,7 @@ data:extend{
     name = "nsb-beacon-rotate",
     key_sequence = "",
     linked_game_control = "rotate",
+    include_selected_prototype = true,
     action = "lua",
     hidden = true,
     hidden_in_factoriopedia = true
@@ -227,7 +228,8 @@ data:extend{
     type = "custom-input",
     name = "nsb-beacon-rotate-reverse",
     key_sequence = "",
-    linked_game_control = "rotate",
+    linked_game_control = "reverse-rotate",
+    include_selected_prototype = true,
     action = "lua",
     hidden = true,
     hidden_in_factoriopedia = true

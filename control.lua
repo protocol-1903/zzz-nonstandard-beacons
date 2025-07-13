@@ -381,3 +381,27 @@ script.on_event(defines.events.script_raised_teleported, function (event)
     entity.teleport(event.entity.position)
   end
 end, event_filter)
+
+script.on_event("nsb-beacon-rotate", function (event)
+  if not event.selected_prototype or modded_beacons[event.selected_prototype.name] == nil then return end
+
+  local name = event.selected_prototype.name
+  local player = game.players[event.player_index]
+  local surface = player.character and player.character.surface or player.surface
+  surface.find_entities_filtered{
+    position = event.cursor_position,
+    name = name .. "-source"
+  }[1].rotate()
+end)
+
+script.on_event("nsb-beacon-rotate-reverse", function (event)
+  if not event.selected_prototype or modded_beacons[event.selected_prototype.name] == nil then return end
+
+  local name = event.selected_prototype.name
+  local player = game.players[event.player_index]
+  local surface = player.character and player.character.surface or player.surface
+  surface.find_entities_filtered{
+    position = event.cursor_position,
+    name = name .. "-source"
+  }[1].rotate{reverse = true}
+end)
