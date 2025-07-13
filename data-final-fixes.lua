@@ -213,5 +213,23 @@ data:extend{
     },
     hidden = true,
     hidden_in_factoriopedia = true
+  },
+  { -- custom rotation handler for beacons
+    type = "custom-input",
+    name = "nsb-beacon-rotate",
+    key_sequence = "",
+    linked_game_control = "rotate",
+    action = "lua",
+    hidden = true,
+    hidden_in_factoriopedia = true
+  },
+  { -- custom counterrotation handler for beacons
+    type = "custom-input",
+    name = "nsb-beacon-rotate-reverse",
+    key_sequence = "",
+    linked_game_control = "rotate",
+    action = "lua",
+    hidden = true,
+    hidden_in_factoriopedia = true
   }
 }
