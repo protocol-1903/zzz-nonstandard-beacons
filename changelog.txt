@@ -1,4 +1,13 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.3.5
+Date: ????
+  Bugfixes:
+    - Fixed electrical energy sources having incorrect names in the electrical network GUI
+    - Fixed electrical energy sources having incorrect descriptions in the electrical network GUI
+    - Fixed modules being shown twice in beacons that have the flag uses_module_effects
+    - Fixed custom migrations not applying when loading the mod into an existing save
+    - Fixed a crash when trying to rotate beacons on events that fire during desyncs
+---------------------------------------------------------------------------------------------------
 Version: 1.3.4
 Date: 2025-07-13
   Features:

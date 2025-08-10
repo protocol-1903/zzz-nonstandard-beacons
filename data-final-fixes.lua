@@ -26,11 +26,8 @@ for p, prototype in pairs(data.raw.beacon) do
     data:extend{{
       type = "assembling-machine",
       name = p .. "-source",
-      localised_description = "entity-status." .. (
-        prototype.energy_source.type == "burner" and "no-fuel" or
-        prototype.energy_source.type == "fluid" and "no-input-fluid" or
-        prototype.energy_source.type == "heat" and "low-temperature" or
-        prototype.energy_source.type == "electric" and "low-power"),
+      localised_name = prototype.localised_name or {"?", {"item-name." .. p}, {"entity-name." .. p}},
+      localised_description = prototype.localised_description or {"?", {"item-description." .. p}, {"entity-description." .. p}},
       icon = prototype.icon,
       minable = prototype.minable,
       icon_size = prototype.icon_size,
@@ -51,6 +48,8 @@ for p, prototype in pairs(data.raw.beacon) do
         "not-upgradable",
         "placeable-neutral"
       },
+      icon_draw_specification = {scale = 0, scale_for_many = 0},
+      icons_positioning = {{inventory_index = defines.inventory.crafter_modules, scale = 0}},
       selectable_in_game = false,
       allow_copy_paste = false,
       effect_receiver = effect_receiver and {
@@ -85,6 +84,30 @@ for p, prototype in pairs(data.raw.beacon) do
 
     -- clear custom flags
     prototype.effect_receiver = nil
+
+    -- set custom tooltip
+    -- prototype.custom_tooltip_fields = {
+    --   source.module_slots > 0 and { name = {"custom-tooltip.affected-by-modules"}, value = "" }
+    --   or effect_receiver and effect_receiver.uses_beacon_effects and { name = {"custom-tooltip.affected-by-beacons"}, value = "" } or nil,
+    --   {
+    --     name = {"description.max-energy-consumption"},
+    --     value = source.energy_usage
+    --   },
+    --   {
+    --     name = {
+    --       source.energy_source.type == "electric" and "description.min-energy-consumption" or
+    --       source.energy_source.type == "burner" and "description.accepted-fuel" or
+    --       source.energy_source.type == "fluid" and "description.accepted-fluid" or
+    --       source.energy_source.type == "heat" and "description.minimum-temperature"
+    --     },
+    --     value = {
+    --       source.energy_source.type == "electric" and (source.energy_source.drain or "placeholder") or
+    --       source.energy_source.type == "burner" and "fuel-category-name." .. source.energy_source.fuel_categories[1]  or
+    --       source.energy_source.type == "fluid" and "fluid-name." .. (source.energy_source.fluid_box.filter or "") or
+    --       source.energy_source.type == "heat" and source.energy_source.min_working_temperature
+    --     }
+    --   }
+    -- }
   end
 end
 
@@ -94,6 +117,7 @@ if uses_module_effects then
     if (prototype.crafting_machine_module_slots_bonus or 0) < (prototype.beacon_module_slots_bonus or 0) then
       error("Failed to load quality " .. p .. ", crafting_machine_module_slots_bonus must not be less than beacon_module_slots_bonus!")
     end
+    prototype.crafting_machine_energy_usage_multiplier = prototype.beacon_power_usage_multiplier
     if (prototype.crafting_machine_energy_usage_multiplier or 0) ~= (prototype.beacon_power_usage_multiplier or 0) then
       error("Failed to load quality " .. p .. ", crafting_machine_energy_usage_multiplier must equal beacon_power_usage_multiplier!")
     end

@@ -60,10 +60,11 @@ local function register_sacrifice(manager, metadata)
 end
 
 local function attempt_migration(force)
+  log("Nonstandard Beacons: attempting migrations")
   -- attempt to update migrated entities
   if modded_beacons ~= storage.modded_beacons or force then
-    log("Change detected! Applying automatic migrations")
-    
+    log("Nonstandard Beacons: migrating beacons")
+
     local changes = {}
     for prototype, value in pairs(modded_beacons) do
       changes[prototype] = force or value ~= storage.modded_beacons[prototype]
@@ -103,6 +104,7 @@ local function attempt_migration(force)
   
     for prototype, changed in pairs(changes) do
       if changed and storage.modded_beacons[prototype] == nil then
+      log("Nonstandard Beacons: migrating new beacon: " .. prototype)
         -- was not previously custom, must be made custom
         for _, surface in pairs(game.surfaces) do
           for _, beacon in pairs(surface.find_entities_filtered{
@@ -176,7 +178,7 @@ end
 script.on_init(function (event)
   storage = {
     beacons = {},
-    modded_beacons = modded_beacons,
+    modded_beacons = {},
     deathrattles = {},
     previous_version = script.active_mods["zzz-nonstandard-beacons"]
   }
@@ -187,12 +189,12 @@ commands.add_command("update_beacons", "Attempt to update custom beacons via scr
 end)
 
 script.on_configuration_changed(function (event)
-  log("config change")
+  log("Nonstandard Beacons: configuration change detected")
   storage.beacons = storage.beacons or {}
   storage.deathrattles = storage.deathrattles or {}
-  storage.modded_beacons = storage.modded_beacons or {}
   storage.previous_version = script.active_mods["zzz-nonstandard-beacons"]
-  attempt_migration()
+  attempt_migration(storage.force_migrations)
+  storage.force_migrations = nil
 end)
 
 script.on_event(defines.events.on_object_destroyed, function(event)
@@ -215,7 +217,9 @@ script.on_event(defines.events.on_object_destroyed, function(event)
       beacon.disabled_by_script = beacon_state == -1
       beacon.custom_status = beacon_state == -1 and {
         diode = defines.entity_status_diode.red, -- add custom status to reflect source status
-        label = beacon.to_be_deconstructed() and {"entity-status.marked-for-deconstruction"} or {source.prototype.localised_description}
+        label = beacon.to_be_deconstructed() and {"entity-status.marked-for-deconstruction"} or {"entity-status." .. (
+        source.prototype.burner_prototype and "no-fuel" or source.prototype.fluid_energy_source_prototype and "no-input-fluid" or
+        source.prototype.heat_energy_source_prototype and "low-temperature" or "low-power")}
       } or nil -- clears if beacon is working as intended
       mimic_sections[1].active = beacon_state == 1 -- update the combinator with the current state
     end
@@ -237,7 +241,9 @@ script.on_event(defines.events.on_object_destroyed, function(event)
     beacon.disabled_by_script = source.status ~= defines.entity_status.working
     beacon.custom_status = source.status ~= defines.entity_status.working and {
       diode = defines.entity_status_diode.red, -- add custom status to reflect source status
-      label = beacon.to_be_deconstructed() and {"entity-status.marked-for-deconstruction"} or {source.prototype.localised_description}
+      label = beacon.to_be_deconstructed() and {"entity-status.marked-for-deconstruction"} or {"entity-status." .. (
+      source.prototype.burner_prototype and "no-fuel" or source.prototype.fluid_energy_source_prototype and "no-input-fluid" or
+      source.prototype.heat_energy_source_prototype and "low-temperature" or "low-power")}
     } or nil -- clears if beacon is working as intended
     manager.get_or_create_control_behavior().circuit_condition = {
       comparator = source.status == defines.entity_status.working and "=" or "≠",
@@ -285,7 +291,9 @@ local function on_created(event)
   beacon.disabled_by_script = true
   beacon.custom_status = {
     diode = defines.entity_status_diode.red,
-    label = {source.prototype.localised_description}
+    label = {"entity-status." .. (
+      source.prototype.burner_prototype and "no-fuel" or source.prototype.fluid_energy_source_prototype and "no-input-fluid" or
+      source.prototype.heat_energy_source_prototype and "low-temperature" or "low-power")}
   }
 
   -- save data and register event
@@ -300,6 +308,8 @@ end
 --- @param event EventData.on_player_mined_entity|EventData.on_robot_mined_entity|EventData.on_space_platform_mined_entity|EventData.script_raised_destroy|EventData.on_entity_died
 local function on_destroyed(event)
   local metadata = storage.beacons[event.entity.unit_number]
+
+  if not metadata then error("error: nonstandard beacons could not find metadata for destroyed entity") end
 
   -- attempt to insert fuel into the event buffer, if possible
   if event.buffer and metadata.source.get_fuel_inventory() then
@@ -388,10 +398,12 @@ script.on_event("nsb-beacon-rotate", function (event)
   local name = event.selected_prototype.name
   local player = game.players[event.player_index]
   local surface = player.character and player.character.surface or player.surface
-  surface.find_entities_filtered{
+  local sources = surface.find_entities_filtered{
     position = event.cursor_position,
     name = name .. "-source"
-  }[1].rotate()
+  }
+  if #sources ~= 1 then return end
+  sources[1].rotate()
 end)
 
 script.on_event("nsb-beacon-rotate-reverse", function (event)
@@ -400,8 +412,10 @@ script.on_event("nsb-beacon-rotate-reverse", function (event)
   local name = event.selected_prototype.name
   local player = game.players[event.player_index]
   local surface = player.character and player.character.surface or player.surface
-  surface.find_entities_filtered{
+  local sources = surface.find_entities_filtered{
     position = event.cursor_position,
     name = name .. "-source"
-  }[1].rotate{reverse = true}
+  }
+  if #sources ~= 1 then return end
+  sources[1].rotate{reverse = true}
 end)
