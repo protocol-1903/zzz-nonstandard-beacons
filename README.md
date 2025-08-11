@@ -9,7 +9,7 @@ Thanks to quezler, nonstandard beacons now have Zero runtime overhead on idle/fu
 You can now create and run non-electric beacons, and this mod will handle all runtime scripting related to them.
 
 ## Use
-Define your beacon entity like normal, but when setting the energy_source just define it as a fluid, heat, or burner variant. Like so:
+Define your beacon entity like normal, but when setting the energy_source just define it as a fluid, heat, or burner variant (OR NOW custom electric using "electric-2-electric-boogaloo"). Like so:
 
 ```
 {
@@ -44,10 +44,15 @@ Define your beacon entity like normal, but when setting the energy_source just d
 ## Additional features
 Nonstandard Beacons includes some new features that you can use on custom beacons, just define them as follows:
 - `prototype.effect_reciever = [EffectReciever](https://lua-api.factorio.com/latest/types/EffectReceiver.html)` allows the beacon source to be affected by surface, beacon, or module effects. If the effect category is not explicitly allowed, the beacon will default to ignoring it. `uses_module_effects` and `uses_beacon_effects` cannot both be true, due to implementation reasons. If `uses_beacon_effects` is true, then the beacon's energy draw will be affected by surrounding beacons. If `uses_module_effects` is true, then the beacon's energy draw will be affected by the contained modules.
+- You must use the custom energy source `"electric-2-electric-boogaloo"` to use any of the other additional features.
+
+## Coming soon, whenever i have time to implement
+- Sources with byproducts (like fusion power)
+- Secondary source requirements (powered by fluids and items, etc)
+- Multi fuel souces (like thrusters)
 
 # Known Issues/Future Features
 - There is currently no way to see the fuel inventory. This will eventually be fixed by a custom GUI implementation.
-- There is no way to rotate asymmetric fluid/burner connections. This is not a pressing issue, but will be looked into if enough people request it.
 - Most of the previous issues were resolved in version 1.2.0. Yay!
 
 If you have any suggestions for future features or compatability, let me know. Creating a discussion on the shelved issues/features makes it more likely that they will be implemented.
