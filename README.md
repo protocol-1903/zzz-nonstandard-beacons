@@ -9,6 +9,8 @@ Thanks to quezler, nonstandard beacons now have Zero runtime overhead on idle/fu
 You can now create and run non-electric beacons, and this mod will handle all runtime scripting related to them.
 
 ## Use
+WHEN ADDING THE MOD AS A REQUIREMENT, MAKE SURE TO MAKE IT NOT LOAD ORDER AFFECTING (i.e. "~ zzz-nonstandard-beacons")
+
 Define your beacon entity like normal, but when setting the energy_source just define it as a fluid, heat, or burner variant (OR NOW custom electric using "electric-2-electric-boogaloo"). Like so:
 
 ```
