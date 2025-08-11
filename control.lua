@@ -188,6 +188,12 @@ commands.add_command("update_beacons", "Attempt to update custom beacons via scr
   attempt_migration(command.parameter == "force_update")
 end)
 
+remote.add_interface("nonstandard-beacons", {
+  force_migrations = function()
+    attempt_migration(true)
+  end
+})
+
 script.on_configuration_changed(function (event)
   log("Nonstandard Beacons: configuration change detected")
   storage.beacons = storage.beacons or {}

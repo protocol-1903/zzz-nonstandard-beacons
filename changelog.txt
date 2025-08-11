@@ -1,4 +1,10 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.3.6
+Date: 2025-08-11
+  Features:
+    - Added a hidden mod setting to automatically force quality compatability instead of erroring. For use by other mods.
+    - Added a remote interface to force migrations. Useful when another mod changes soemthing that hasnt been caught
+---------------------------------------------------------------------------------------------------
 Version: 1.3.5
 Date: 2025-08-10
   Bugfixes:
