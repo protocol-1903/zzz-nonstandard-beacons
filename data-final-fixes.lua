@@ -169,6 +169,7 @@ data:extend{
     type = "assembling-machine",
     name = "nsb-internal-manager",
     icon = util.empty_icon().icon,
+    collision_mask = {layers = {}},
     flags = {
       "placeable-off-grid",
       "not-repairable",
