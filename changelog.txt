@@ -1,6 +1,8 @@
 ---------------------------------------------------------------------------------------------------
 Version: 1.3.7
 Date: 2025-08-28
+  Features:
+    - Added a remote interface to access the related entities for a given nonstandard beacon. Access using the beacon's unit number
   Bugfixes:
     - Fixed internal manager having a collision mask
 ---------------------------------------------------------------------------------------------------

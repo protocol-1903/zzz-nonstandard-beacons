@@ -425,3 +425,7 @@ script.on_event("nsb-beacon-rotate-reverse", function (event)
   if #sources ~= 1 then return end
   sources[1].rotate{reverse = true}
 end)
+
+remote.add_interface("nonstandard-beacons", {["get-beacon-data"] = function (beacon_unit_number)
+  return storage.beacons[beacon_unit_number]
+end})
