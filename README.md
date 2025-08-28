@@ -46,7 +46,8 @@ Define your beacon entity like normal, but when setting the energy_source just d
 ## Additional features
 Nonstandard Beacons includes some new features that you can use on custom beacons, just define them as follows:
 - `prototype.effect_reciever = [EffectReciever](https://lua-api.factorio.com/latest/types/EffectReceiver.html)` allows the beacon source to be affected by surface, beacon, or module effects. If the effect category is not explicitly allowed, the beacon will default to ignoring it. `uses_module_effects` and `uses_beacon_effects` cannot both be true, due to implementation reasons. If `uses_beacon_effects` is true, then the beacon's energy draw will be affected by surrounding beacons. If `uses_module_effects` is true, then the beacon's energy draw will be affected by the contained modules.
-- You must use the custom energy source `"electric-2-electric-boogaloo"` to use any of the other additional features.
+- Use `remote.call("nonstandard-beacons", "get-beacon-data", beacon_unit_number)` to access any of the internal entities releated to that nonstandard beacon. `source` is the actual power source entity - an assembler, internally. it's the only one that you should need access to, if anything. `manager` is the entity that detects changes in the beacon state, also an assembler. `monitor` and `mimic` only exist if the beacon `uses_module_effects`, and i see no reason why you would need to access either. they only provide information to the circuit network.
+- You must use the custom energy source `"electric-2-electric-boogaloo"` to use any of the other additional features on an electrically powered beacon.
 
 ## Coming soon, whenever i have time to implement
 - Sources with byproducts (like fusion power)
