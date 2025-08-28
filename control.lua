@@ -191,7 +191,10 @@ end)
 remote.add_interface("nonstandard-beacons", {
   force_migrations = function()
     attempt_migration(true)
-  end
+  end,
+  ["get-beacon-data"] = function (beacon_unit_number)
+  return storage.beacons[beacon_unit_number]
+end
 })
 
 script.on_configuration_changed(function (event)
@@ -425,7 +428,3 @@ script.on_event("nsb-beacon-rotate-reverse", function (event)
   if #sources ~= 1 then return end
   sources[1].rotate{reverse = true}
 end)
-
-remote.add_interface("nonstandard-beacons", {["get-beacon-data"] = function (beacon_unit_number)
-  return storage.beacons[beacon_unit_number]
-end})
