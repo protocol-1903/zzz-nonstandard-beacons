@@ -71,7 +71,16 @@ local function attempt_migration(force)
     end
     
     for index, metadata in pairs(storage.beacons or {}) do
-      if changes[metadata.beacon.name] then
+      if not metadata.beacon.valid then -- beacon removed, destroy entities
+        -- remove unneeded entities
+        if metadata.source.valid then metadata.source.destroy() end
+        if metadata.manager.valid then metadata.manager.destroy() end
+        if metadata.monitor and metadata.monitor.valid then metadata.monitor.destroy() end
+        if metadata.mimic and metadata.mimic.valid then metadata.mimic.destroy() end
+
+        -- clear storage index
+        storage.beacons[index] = nil
+      elseif changes[metadata.beacon.name] then
         if modded_beacons[metadata.beacon.name] == nil then
           -- no longer custom, revert to normal
           metadata.beacon.disabled_by_script = false
@@ -82,6 +91,9 @@ local function attempt_migration(force)
           if metadata.manager.valid then metadata.manager.destroy() end
           if metadata.monitor and metadata.monitor.valid then metadata.monitor.destroy() end
           if metadata.mimic and metadata.mimic.valid then metadata.mimic.destroy() end
+
+          -- clear storage index
+          storage.beacons[index] = nil
         elseif modded_beacons[metadata.beacon.name] and not metadata.monitor then
           make_modded(metadata.beacon)
         elseif not modded_beacons[metadata.beacon.name] and metadata.monitor then

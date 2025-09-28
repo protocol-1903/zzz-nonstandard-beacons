@@ -3,7 +3,7 @@
 # This mod does not add new beacons unless you use the example mod setting. Another mod must be used to add new beacons.
 
 ### NOW WITH NO RUNTIME OVERHEAD! PLAYERS REJOICE WITH UPS FREE BEACONS!
-Thanks to quezler, nonstandard beacons now have Zero runtime overhead on idle/fully powered bases. The only scripting is done when the beacon turns on/off.
+Thanks to quezler, nonstandard beacons now have zero runtime overhead on steady-state (fully powered or no fuel) bases. The only scripting is done when the beacon turns on/off.
 
 ## What?
 You can now create and run non-electric beacons, and this mod will handle all runtime scripting related to them.
@@ -11,7 +11,7 @@ You can now create and run non-electric beacons, and this mod will handle all ru
 ## Use
 WHEN ADDING THE MOD AS A REQUIREMENT, MAKE SURE TO MAKE IT NOT LOAD ORDER AFFECTING (i.e. "~ zzz-nonstandard-beacons")
 
-Define your beacon entity like normal, but when setting the energy_source just define it as a fluid, heat, or burner variant (OR NOW custom electric using "electric-2-electric-boogaloo"). Like so:
+Define your beacon entity like normal, but when setting the energy_source just define it as a fluid, heat, or burner variant (OR custom electric using "electric-2-electric-boogaloo"). Like so:
 
 ```
 {
@@ -33,7 +33,6 @@ Define your beacon entity like normal, but when setting the energy_source just d
   },
   radius_visualisation_picture = {
     filename = "__base__/graphics/entity/beacon/beacon-radius-visualization.png",
-    priority = "extra-high-no-scale",
     width = 10,
     height = 10
   },
