@@ -55,6 +55,7 @@ Nonstandard Beacons includes some new features that you can use on custom beacon
 
 # Known Issues/Future Features
 - There is currently no way to see the fuel inventory. This will eventually be fixed by a custom GUI implementation.
+- If you rotate a beacon, it will show the "this entity cannot be rotated" message even though the connections rotate. This is not solvable, just ignore it.
 - Most of the previous issues were resolved in version 1.2.0. Yay!
 
 If you have any suggestions for future features or compatability, let me know. Creating a discussion on the shelved issues/features makes it more likely that they will be implemented.
