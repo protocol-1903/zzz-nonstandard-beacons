@@ -1,4 +1,10 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.3.10
+Date: 2025-10-18
+  Bugfixes:
+    - Blanket bugfixes due to malformed migration data
+    - Fixed issues surrounding orphan entities from malformed migration data (see log file to find out how many ninjas were removed)
+---------------------------------------------------------------------------------------------------
 Version: 1.3.9
 Date: 2025-09-27
   Bugfixes:

@@ -1,9 +1,12 @@
 local event_filter = assert(prototypes.mod_data["nsb-beacon-data"].data.event, "error: nonstandard beacon event filter not found!")
 local modded_beacons = assert(prototypes.mod_data["nsb-beacon-data"].data.modded_beacons, "error: nonstandard beacon data not found!")
 
+log("Beacon Data:")
 log(serpent.block(modded_beacons))
 
 local function make_modded(beacon)
+  -- skip if already existant
+  if storage.beacons[beacon.unit_number].monitor then return end
   local source = storage.beacons[beacon.unit_number].source
   local manager = storage.beacons[beacon.unit_number].manager
   -- create new entities
@@ -50,6 +53,19 @@ local function make_modded(beacon)
   storage.beacons[beacon.unit_number].monitor = monitor
 end
 
+local function valid(metadata)
+  if not metadata then return false end
+  if not metadata.beacon then
+    storage.beacons[metadata.beacon.unit_number] = nil
+    if metadata.source.valid then metadata.source.destroy() end
+    if metadata.manager.valid then metadata.manager.destroy() end
+    if metadata.monitor and metadata.monitor.valid then metadata.monitor.destroy() end
+    if metadata.mimic and metadata.mimic.valid then metadata.mimic.destroy() end
+    return false
+  end
+  return true
+end
+
 local function register_sacrifice(manager, metadata)
   manager.get_inventory(defines.inventory.crafter_input).insert{
     name = "nsb-internal-item",
@@ -60,43 +76,101 @@ local function register_sacrifice(manager, metadata)
 end
 
 local function attempt_migration(force)
-  log("Nonstandard Beacons: attempting migrations")
+  local ninjas = 0
+  log("NSB: Checking for invalid data")
+  for _, metatable in pairs{
+    storage.modded_beacons,
+    prototypes.mod_data["nsb-beacon-data"].data.modded_beacons
+  } do
+    for beacon_prototype in pairs(metatable) do
+      for _, surface in pairs(game.surfaces) do
+        for _, source in pairs(surface.find_entities_filtered{
+          name = beacon_prototype .. "-source"
+        }) do
+          if source.valid then
+            local beacons = surface.find_entities_filtered{
+              position = source.position,
+              name = beacon_prototype
+            }
+            -- no beacon or beacon with no storage reference
+            if #beacons == 0  or #beacons == 1 and not storage.beacons[beacons[1].unit_number] then
+              -- remove excess entities
+              for _, entity_name in pairs{
+                "nsb-internal-monitor",
+                "nsb-internal-manager",
+                "nsb-internal-mimic",
+                beacon_prototype .. "-source" -- do last cause we use it to reference position
+              } do
+                for _, entity in pairs(surface.find_entities_filtered{
+                  position = source.position,
+                  name = entity_name
+                }) do
+                  entity.destroy()
+                  ninjas = ninjas + 1
+                end
+              end
+            elseif #beacons == 1 then
+              -- make sure no extraneous entities exist
+              for reference_name, entity_name in pairs{
+                source = beacon_prototype .. "-source",
+                monitor = "nsb-internal-monitor",
+                manager = "nsb-internal-manager",
+                mimic = "nsb-internal-mimic"
+              } do
+                for _, entity in pairs(surface.find_entities_filtered{
+                  position = source.position,
+                  name = entity_name
+                }) do
+                  local reference = storage.beacons[beacons[1].unit_number][reference_name] or {}
+                  if entity.unit_number ~= reference.unit_number then
+                    entity.destroy()
+                    ninjas = ninjas + 1
+                  end
+                end
+              end
+            end
+          end
+        end
+      end
+    end
+  end
+
+  log("Removed " .. ninjas .. " ninjas")
+  log("NSB: attempting migrations")
   -- attempt to update migrated entities
   if modded_beacons ~= storage.modded_beacons or force then
-    log("Nonstandard Beacons: migrating beacons")
+    log("Migrating beacons")
 
     local changes = {}
     for prototype, value in pairs(modded_beacons) do
       changes[prototype] = force or value ~= storage.modded_beacons[prototype]
     end
     
+    -- migrate already stored beacons
     for index, metadata in pairs(storage.beacons or {}) do
-      if not metadata.beacon.valid then -- beacon removed, destroy entities
-        -- remove unneeded entities
-        if metadata.source.valid then metadata.source.destroy() end
-        if metadata.manager.valid then metadata.manager.destroy() end
-        if metadata.monitor and metadata.monitor.valid then metadata.monitor.destroy() end
-        if metadata.mimic and metadata.mimic.valid then metadata.mimic.destroy() end
-
-        -- clear storage index
-        storage.beacons[index] = nil
+      if not valid(metadata) then -- beacon removed, destroy entities
+        log("Removing invalid beacon: " .. metadata.beacon)
       elseif changes[metadata.beacon.name] then
         if modded_beacons[metadata.beacon.name] == nil then
+          log("Removing custom entities for: " .. metadata.beacon)
+          
           -- no longer custom, revert to normal
           metadata.beacon.disabled_by_script = false
           metadata.beacon.custom_status = nil
-
+          
           -- remove unneeded entities
           if metadata.source.valid then metadata.source.destroy() end
           if metadata.manager.valid then metadata.manager.destroy() end
           if metadata.monitor and metadata.monitor.valid then metadata.monitor.destroy() end
           if metadata.mimic and metadata.mimic.valid then metadata.mimic.destroy() end
-
+          
           -- clear storage index
           storage.beacons[index] = nil
         elseif modded_beacons[metadata.beacon.name] and not metadata.monitor then
+          log("Adding monitor for: " .. metadata.beacon)
           make_modded(metadata.beacon)
         elseif not modded_beacons[metadata.beacon.name] and metadata.monitor then
+          log("Removing monitor for: " .. metadata.beacon)
           -- reset manager settings and clear source modules
           metadata.source.get_module_inventory().clear()
           metadata.manager.get_or_create_control_behavior().circuit_condition = {
@@ -113,49 +187,57 @@ local function attempt_migration(force)
         end
       end
     end
+    log("Old data: " .. serpent.block(storage.modded_beacons[prototype]))
+    log("New data: " .. serpent.block(modded_beacons))
+    log("Changes: " .. serpent.block(changes))
   
+    -- migrate existing beacons
     for prototype, changed in pairs(changes) do
       if changed and storage.modded_beacons[prototype] == nil then
-      log("Nonstandard Beacons: migrating new beacon: " .. prototype)
+        log("Nonstandard Beacons: attempting migrations for prototype: " .. prototype)
         -- was not previously custom, must be made custom
         for _, surface in pairs(game.surfaces) do
+          log("Searching surface: " .. surface.name)
           for _, beacon in pairs(surface.find_entities_filtered{
             name = prototype,
             type = "beacon"
           }) do
-            local source = beacon.surface.create_entity{
-              name = beacon.name .. "-source",
-              position = beacon.position,
-              quality = beacon.quality,
-              force = beacon.force
-            }
-  
-            local manager = beacon.surface.create_entity{
-              name = "nsb-internal-manager",
-              position = beacon.position,
-              force = beacon.force
-            }
-            
-            -- connect source, manager, mimic, and (?) monitor
-            manager.get_wire_connector(defines.wire_connector_id.circuit_green, true).connect_to(source.get_wire_connector(defines.wire_connector_id.circuit_green, true), false, defines.wire_origin.script)
-            
-            -- set circuit settings
-            source_behaviour = source.get_or_create_control_behavior()
-            manager_behaviour = manager.get_or_create_control_behavior()
-            
-            source_behaviour.circuit_read_working = true
-            source_behaviour.circuit_working_signal = {type = "item", name = "nsb-internal-item"}
-            manager_behaviour.circuit_enable_disable = true
-            manager_behaviour.circuit_condition = {
-              comparator = "≠",
-              constant = 0,
-              first_signal = { name = "nsb-internal-item", type = "item" }
-            }
-  
-            -- save data and register event
-            storage.beacons[beacon.unit_number] = {beacon = beacon, source = source, manager = manager}
-            register_sacrifice(manager, storage.beacons[beacon.unit_number])
-            
+            if not storage.beacons[beacon.unit_number] then
+              log("Found unmodded beacon: ")
+              log(beacon)
+              local source = beacon.surface.create_entity{
+                name = beacon.name .. "-source",
+                position = beacon.position,
+                quality = beacon.quality,
+                force = beacon.force
+              }
+    
+              local manager = beacon.surface.create_entity{
+                name = "nsb-internal-manager",
+                position = beacon.position,
+                force = beacon.force
+              }
+              
+              -- connect source, manager, mimic, and (?) monitor
+              manager.get_wire_connector(defines.wire_connector_id.circuit_green, true).connect_to(source.get_wire_connector(defines.wire_connector_id.circuit_green, true), false, defines.wire_origin.script)
+              
+              -- set circuit settings
+              source_behaviour = source.get_or_create_control_behavior()
+              manager_behaviour = manager.get_or_create_control_behavior()
+              
+              source_behaviour.circuit_read_working = true
+              source_behaviour.circuit_working_signal = {type = "item", name = "nsb-internal-item"}
+              manager_behaviour.circuit_enable_disable = true
+              manager_behaviour.circuit_condition = {
+                comparator = "≠",
+                constant = 0,
+                first_signal = { name = "nsb-internal-item", type = "item" }
+              }
+    
+              -- save data and register event
+              storage.beacons[beacon.unit_number] = {beacon = beacon, source = source, manager = manager}
+              register_sacrifice(manager, storage.beacons[beacon.unit_number])
+            end
             if moduled then
               make_modded(beacon)
             end
@@ -187,7 +269,7 @@ local function attempt_migration(force)
   storage.modded_beacons = modded_beacons
 end
 
-script.on_init(function (event)
+script.on_init(function ()
   storage = {
     beacons = {},
     modded_beacons = {},
