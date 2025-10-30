@@ -56,7 +56,6 @@ end
 local function valid(metadata)
   if not metadata then return false end
   if not metadata.beacon or not metadata.beacon.valid then
-    storage.beacons[metadata.beacon.unit_number] = nil
     if metadata.source.valid then metadata.source.destroy() end
     if metadata.manager.valid then metadata.manager.destroy() end
     if metadata.monitor and metadata.monitor.valid then metadata.monitor.destroy() end
@@ -149,6 +148,7 @@ local function attempt_migration(force)
     -- migrate already stored beacons
     for index, metadata in pairs(storage.beacons or {}) do
       if not valid(metadata) then -- beacon removed, destroy entities
+        storage.beacons[index] = nil
         log("Removing invalid beacon: " .. metadata.beacon)
       elseif changes[metadata.beacon.name] then
         if modded_beacons[metadata.beacon.name] == nil then
