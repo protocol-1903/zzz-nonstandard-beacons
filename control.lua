@@ -55,7 +55,7 @@ end
 
 local function valid(metadata)
   if not metadata then return false end
-  if not metadata.beacon then
+  if not metadata.beacon or not metadata.beacon.valid then
     storage.beacons[metadata.beacon.unit_number] = nil
     if metadata.source.valid then metadata.source.destroy() end
     if metadata.manager.valid then metadata.manager.destroy() end
