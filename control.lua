@@ -140,6 +140,8 @@ local function attempt_migration(force)
   if modded_beacons ~= storage.modded_beacons or force then
     log("Migrating beacons")
 
+    local beacons_removed = 0
+    
     local changes = {}
     for prototype, value in pairs(modded_beacons) do
       changes[prototype] = force or value ~= storage.modded_beacons[prototype]
@@ -148,8 +150,10 @@ local function attempt_migration(force)
     -- migrate already stored beacons
     for index, metadata in pairs(storage.beacons or {}) do
       if not valid(metadata) then -- beacon removed, destroy entities
+        beacons_removed = beacons_removed + 1
+        log("Removing beacon:")
+        log(metadata.beacon)
         storage.beacons[index] = nil
-        log("Removing invalid beacon: " .. metadata.beacon)
       elseif changes[metadata.beacon.name] then
         if modded_beacons[metadata.beacon.name] == nil then
           log("Removing custom entities for: " .. metadata.beacon)
@@ -187,6 +191,7 @@ local function attempt_migration(force)
         end
       end
     end
+    log("Removed " .. beacons_removed .. " invalid beacons")
     log("Old data: " .. serpent.block(storage.modded_beacons[prototype]))
     log("New data: " .. serpent.block(modded_beacons))
     log("Changes: " .. serpent.block(changes))
