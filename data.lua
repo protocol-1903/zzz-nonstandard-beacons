@@ -14,7 +14,8 @@ if settings.startup["nsb-include-example-beacons"].value then
       energy_usage = "480kW",
       energy_source = {
         type = "electric-2-electric-boogaloo",
-        usage_priority = "secondary-input"
+        usage_priority = "secondary-input",
+        drain = "20kW"
       },
       effect_receiver = {
         uses_beacon_effects = true,
@@ -130,7 +131,7 @@ if settings.startup["nsb-include-example-beacons"].value then
       drawing_box_vertical_extension = 0.7,
       allowed_effects = {"consumption", "speed", "pollution"},
       graphics_set = require("__base__.prototypes.entity.beacon-animations"),
-      energy_usage = "480kW",
+      energy_usage = "48000kW",
       energy_source = {
         type = "heat",
         max_temperature = 1000,

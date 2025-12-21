@@ -1,6 +1,37 @@
 local uses_module_effects = false
 local event_filter, deconstruction_filter, modded_beacons = {}, {}, {}
 
+local function extract_power(energy)
+  local mult = not tonumber(energy:sub(1, -2)) and energy:sub(-2, -2) or nil
+  return (mult and energy:sub(1, -3) or energy:sub(1, -2)) * (energy:sub(-1) == "J" and 60 or 1) * 10^(
+    mult == "k" and 3 or mult == "M" and 6 or
+    mult == "G" and 9 or mult == "T" and 12 or
+    mult == "P" and 15 or mult == "E" and 18 or
+    mult == "Z" and 21 or mult == "Y" and 24 or
+    mult == "R" and 27 or mult == "Q" and 30 or 1
+  )
+end
+
+local function calculate_power(energy)
+  local mult = 0
+  while energy >= 1000 do
+    energy = energy / 1000
+    mult = mult + 1
+  end
+  -- convert to 000 or 00.0 or 0.0
+  if energy >= 100 then
+    energy = math.floor(energy)
+  else
+    energy = math.floor(energy * 10) / 10
+  end
+  return energy,
+    mult == 1 and "k" or mult == 2 and "M" or
+    mult == 3 and "G" or mult == 4 and "T" or
+    mult == 5 and "P" or mult == 6 and "E" or
+    mult == 7 and "Z" or mult == 8 and "Y" or
+    mult == 9 and "R" or mult == 10 and "Q" or ""
+end
+
 for p, prototype in pairs(data.raw.beacon) do
   if prototype.energy_source.type ~= "void" and prototype.energy_source.type ~= "electric" then
     -- validate optional properties
@@ -85,29 +116,94 @@ for p, prototype in pairs(data.raw.beacon) do
     -- clear custom flags
     prototype.effect_receiver = nil
 
-    -- set custom tooltip
-    -- prototype.custom_tooltip_fields = {
-    --   source.module_slots > 0 and { name = {"custom-tooltip.affected-by-modules"}, value = "" }
-    --   or effect_receiver and effect_receiver.uses_beacon_effects and { name = {"custom-tooltip.affected-by-beacons"}, value = "" } or nil,
-    --   {
-    --     name = {"description.max-energy-consumption"},
-    --     value = source.energy_usage
-    --   },
-    --   {
-    --     name = {
-    --       source.energy_source.type == "electric" and "description.min-energy-consumption" or
-    --       source.energy_source.type == "burner" and "description.accepted-fuel" or
-    --       source.energy_source.type == "fluid" and "description.accepted-fluid" or
-    --       source.energy_source.type == "heat" and "description.minimum-temperature"
-    --     },
-    --     value = {
-    --       source.energy_source.type == "electric" and (source.energy_source.drain or "placeholder") or
-    --       source.energy_source.type == "burner" and "fuel-category-name." .. source.energy_source.fuel_categories[1]  or
-    --       source.energy_source.type == "fluid" and "fluid-name." .. (source.energy_source.fluid_box.filter or "") or
-    --       source.energy_source.type == "heat" and source.energy_source.min_working_temperature
-    --     }
-    --   }
-    -- }
+    -- set custom tooltip data
+    local fields = {}
+    -- module/beacon effectiveness on the beacon
+    fields[#fields + 1] = source.module_slots > 0 and {
+      name = "",
+      value = {"custom-tooltip.affected-by-modules"}
+    } or nil
+    fields[#fields + 1] = effect_receiver and effect_receiver.uses_beacon_effects and {
+      name = "",
+      value = {"custom-tooltip.affected-by-beacons"}
+    } or nil
+    
+    -- power calculations for consumption
+    local power = extract_power(source.energy_usage) / (source.effectivity or 1)
+    local prefix, mult = calculate_power(power)
+    local consumption = tostring(prefix) .. " " .. mult .. "W"
+
+    if source.energy_source.type == "electric" then
+      fields[#fields + 1] = {
+        name = "",
+        value = {"custom-tooltip.header", {"", "[img=tooltip-category-electricity]", " ", {"tooltip-category.consumes"}, " ", {"tooltip-category.electricity"}}}
+      }
+      fields[#fields + 1] = {
+        name = {"description.max-energy-consumption"},
+        value = consumption
+      }
+      -- min consumption, only applies to electrics
+      fields[#fields + 1] = source.drain and {
+        name = {"description.min-energy-consumption"},
+        value = source.drain
+      } or nil
+    elseif source.energy_source.type == "burner" then
+      local category = #(source.energy_source.fuel_categories or {}) == 1 and source.energy_source.fuel_categories[1] or nil
+      local tooltip_category = category and data.raw.sprite["tooltip-category-" .. category] and "tooltip-category-" .. category or "tooltip-category-consumes"
+      fields[#fields + 1] = {
+        name = "",
+        value = {"custom-tooltip.header", {"", "[img=" .. tooltip_category .. "]", " ", {"tooltip-category.consumes"}, " ", category and {"fuel-category-name." .. category}}}
+      }
+      fields[#fields + 1] = {
+        name = {"description.max-energy-consumption"},
+        value = consumption
+      }
+      -- efficiency, not always appliccable
+      fields[#fields + 1] = source.effectivity and {
+        name = {"description.effectivity"},
+        value = tostring(math.floor(source.effectivity * 1000) / 10) .. "%"
+      }
+    elseif source.energy_source.type == "fluid" then
+      local fluid = source.energy_source.fluid_box.filter
+      local tooltip_category = fluid and data.raw.sprite["tooltip-category-" .. fluid] and "tooltip-category-" .. fluid or "tooltip-category-consumes"
+      fields[#fields + 1] = {
+        name = "",
+        value = {"custom-tooltip.header", {"", "[img=" .. tooltip_category .. "]", " ", {"tooltip-category.consumes"}, " ", fluid and {"fluid-name." .. fluid} or {"tooltip-category.fluid"}}}
+      }
+      fields[#fields + 1] = {
+        name = {"description.max-energy-consumption"},
+        value = consumption
+      }
+      -- efficiency, not always appliccable
+      fields[#fields + 1] = source.effectivity and {
+        name = {"description.effectivity"},
+        value = tostring(math.floor(source.effectivity * 1000) / 10) .. "%"
+      }
+      fields[#fields + 1] = source.energy_source.maximum_temperature and {
+        name = {"description.maximum-temperature"},
+        value = {"", tostring(source.energy_source.maximum_temperature) .. " ", {"si-unit-degree-celsius"}}
+      } or nil
+    elseif source.energy_source.type == "heat" then
+      fields[#fields + 1] = {
+        name = "",
+        value = {"custom-tooltip.header", {"", "[img=tooltip-category-heat]", " ", {"tooltip-category.consumes"}, " ", {"tooltip-category.heat"}}}
+      }
+      fields[#fields + 1] = {
+        name = {"description.max-energy-consumption"},
+        value = consumption
+      }
+      -- min and max temp
+      fields[#fields + 1] = {
+        name = {"description.maximum-temperature"},
+        value = {"", tostring(source.energy_source.max_temperature) .. " ", {"si-unit-degree-celsius"}}
+      }
+      fields[#fields + 1] = source.energy_source.min_working_temperature and {
+        name = {"description.minimum-temperature"},
+        value = {"", tostring(source.energy_source.min_working_temperature) .. " ", {"si-unit-degree-celsius"}}
+      } or nil
+    end
+
+    prototype.custom_tooltip_fields = fields
   end
 end
 
