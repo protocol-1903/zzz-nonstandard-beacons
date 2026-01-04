@@ -217,15 +217,6 @@ if uses_module_effects then
         error("Failed to load quality " .. p .. ", crafting_machine_module_slots_bonus must not be less than beacon_module_slots_bonus!")
       end
     end
-    if (prototype.crafting_machine_energy_usage_multiplier or 0.01) ~= (prototype.beacon_power_usage_multiplier or 0.01) then
-      if settings.startup["nsb-override-quality"].value then
-        local mult = math.max(prototype.crafting_machine_energy_usage_multiplier or 0.01, prototype.beacon_power_usage_multiplier or 0.01)
-        prototype.crafting_machine_energy_usage_multiplier = mult
-        prototype.beacon_power_usage_multiplier = mult
-      else
-        error("Failed to load quality " .. p .. ", crafting_machine_energy_usage_multiplier must equal beacon_power_usage_multiplier!")
-      end
-    end
   end
 end
 
