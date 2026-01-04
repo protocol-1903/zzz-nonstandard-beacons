@@ -26,7 +26,7 @@ local function make_modded(beacon)
   manager.get_wire_connector(defines.wire_connector_id.circuit_green, true).connect_to(mimic.get_wire_connector(defines.wire_connector_id.circuit_green, true), false, defines.wire_origin.script)
   monitor.proxy_target_entity = beacon
   monitor.proxy_target_inventory = defines.inventory.beacon_modules
-  mimic_behaviour = mimic.get_or_create_control_behavior()
+  local mimic_behaviour = mimic.get_or_create_control_behavior()
   mimic_behaviour.sections[1].set_slot(1, {value = {type = "item", name = "nsb-internal-item", quality = "normal"}, min = -1})
   mimic_behaviour.sections[1].active = false
   mimic_behaviour.add_section().multiplier = -1
@@ -192,7 +192,7 @@ local function attempt_migration(force)
       end
     end
     log("Removed " .. beacons_removed .. " invalid beacons")
-    log("Old data: " .. serpent.block(storage.modded_beacons[prototype]))
+    log("Old data: " .. serpent.block(storage.modded_beacons))
     log("New data: " .. serpent.block(modded_beacons))
     log("Changes: " .. serpent.block(changes))
   
@@ -227,8 +227,8 @@ local function attempt_migration(force)
               manager.get_wire_connector(defines.wire_connector_id.circuit_green, true).connect_to(source.get_wire_connector(defines.wire_connector_id.circuit_green, true), false, defines.wire_origin.script)
               
               -- set circuit settings
-              source_behaviour = source.get_or_create_control_behavior()
-              manager_behaviour = manager.get_or_create_control_behavior()
+              local source_behaviour = source.get_or_create_control_behavior()
+              local manager_behaviour = manager.get_or_create_control_behavior()
               
               source_behaviour.circuit_read_working = true
               source_behaviour.circuit_working_signal = {type = "item", name = "nsb-internal-item"}
@@ -243,7 +243,7 @@ local function attempt_migration(force)
               storage.beacons[beacon.unit_number] = {beacon = beacon, source = source, manager = manager}
               register_sacrifice(manager, storage.beacons[beacon.unit_number])
             end
-            if moduled then
+            if storage.modded_beacons[prototype] then
               make_modded(beacon)
             end
           end
@@ -275,7 +275,7 @@ local function attempt_migration(force)
 end
 
 script.on_init(function ()
-  storage = {
+  _G.storage = {
     beacons = {},
     modded_beacons = {},
     deathrattles = {},
@@ -384,8 +384,8 @@ local function on_created(event)
   manager.get_wire_connector(defines.wire_connector_id.circuit_green, true).connect_to(source.get_wire_connector(defines.wire_connector_id.circuit_green, true), false, defines.wire_origin.script)
   
   -- set circuit settings
-  source_behaviour = source.get_or_create_control_behavior()
-  manager_behaviour = manager.get_or_create_control_behavior()
+  local source_behaviour = source.get_or_create_control_behavior()
+  local manager_behaviour = manager.get_or_create_control_behavior()
   
   source_behaviour.circuit_read_working = true
   source_behaviour.circuit_working_signal = {type = "item", name = "nsb-internal-item"}
@@ -393,7 +393,7 @@ local function on_created(event)
   manager_behaviour.circuit_condition = {
     comparator = "≠",
     constant = 0,
-    first_signal = monitor and { name = "signal-anything", type = "virtual" } or { name = "nsb-internal-item", type = "item" }
+    first_signal = { name = "nsb-internal-item", type = "item" }
   }
 
   beacon.disabled_by_script = true
