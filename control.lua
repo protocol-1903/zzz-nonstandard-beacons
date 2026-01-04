@@ -56,10 +56,10 @@ end
 local function valid(metadata)
   if not metadata then return false end
   if not metadata.beacon or not metadata.beacon.valid then
-    if metadata.source.valid then metadata.source.destroy() end
-    if metadata.manager.valid then metadata.manager.destroy() end
-    if metadata.monitor and metadata.monitor.valid then metadata.monitor.destroy() end
-    if metadata.mimic and metadata.mimic.valid then metadata.mimic.destroy() end
+    safe_destroy(metadata.source)
+    safe_destroy(metadata.manager)
+    safe_destroy(metadata.monitor)
+    safe_destroy(metadata.mimic)
     return false
   end
   return true
@@ -82,48 +82,50 @@ local function attempt_migration(force)
     prototypes.mod_data["nsb-beacon-data"].data.modded_beacons
   } do
     for beacon_prototype in pairs(metatable) do
-      for _, surface in pairs(game.surfaces) do
-        for _, source in pairs(surface.find_entities_filtered{
-          name = beacon_prototype .. "-source"
-        }) do
-          if source.valid then
-            local beacons = surface.find_entities_filtered{
-              position = source.position,
-              name = beacon_prototype
-            }
-            -- no beacon or beacon with no storage reference
-            if #beacons == 0  or #beacons == 1 and not storage.beacons[beacons[1].unit_number] then
-              -- remove excess entities
-              for _, entity_name in pairs{
-                "nsb-internal-monitor",
-                "nsb-internal-manager",
-                "nsb-internal-mimic",
-                beacon_prototype .. "-source" -- do last cause we use it to reference position
-              } do
-                for _, entity in pairs(surface.find_entities_filtered{
-                  position = source.position,
-                  name = entity_name
-                }) do
-                  entity.destroy()
-                  ninjas = ninjas + 1
-                end
-              end
-            elseif #beacons == 1 then
-              -- make sure no extraneous entities exist
-              for reference_name, entity_name in pairs{
-                source = beacon_prototype .. "-source",
-                monitor = "nsb-internal-monitor",
-                manager = "nsb-internal-manager",
-                mimic = "nsb-internal-mimic"
-              } do
-                for _, entity in pairs(surface.find_entities_filtered{
-                  position = source.position,
-                  name = entity_name
-                }) do
-                  local reference = storage.beacons[beacons[1].unit_number][reference_name] or {}
-                  if entity.unit_number ~= reference.unit_number then
+      if prototypes.entity[beacon_prototype] and prototypes.entity[beacon_prototype .. "-source"] then
+        for _, surface in pairs(game.surfaces) do
+          for _, source in pairs(surface.find_entities_filtered{
+            name = beacon_prototype .. "-source"
+          }) do
+            if source.valid then
+              local beacons = surface.find_entities_filtered{
+                position = source.position,
+                name = beacon_prototype
+              }
+              -- no beacon or beacon with no storage reference
+              if #beacons == 0  or #beacons == 1 and not storage.beacons[beacons[1].unit_number] then
+                -- remove excess entities
+                for _, entity_name in pairs{
+                  "nsb-internal-monitor",
+                  "nsb-internal-manager",
+                  "nsb-internal-mimic",
+                  beacon_prototype .. "-source" -- do last cause we use it to reference position
+                } do
+                  for _, entity in pairs(surface.find_entities_filtered{
+                    position = source.position,
+                    name = entity_name
+                  }) do
                     entity.destroy()
                     ninjas = ninjas + 1
+                  end
+                end
+              elseif #beacons == 1 then
+                -- make sure no extraneous entities exist
+                for reference_name, entity_name in pairs{
+                  source = beacon_prototype .. "-source",
+                  monitor = "nsb-internal-monitor",
+                  manager = "nsb-internal-manager",
+                  mimic = "nsb-internal-mimic"
+                } do
+                  for _, entity in pairs(surface.find_entities_filtered{
+                    position = source.position,
+                    name = entity_name
+                  }) do
+                    local reference = storage.beacons[beacons[1].unit_number][reference_name] or {}
+                    if entity.unit_number ~= reference.unit_number then
+                      entity.destroy()
+                      ninjas = ninjas + 1
+                    end
                   end
                 end
               end
@@ -163,10 +165,10 @@ local function attempt_migration(force)
           metadata.beacon.custom_status = nil
           
           -- remove unneeded entities
-          if metadata.source.valid then metadata.source.destroy() end
-          if metadata.manager.valid then metadata.manager.destroy() end
-          if metadata.monitor and metadata.monitor.valid then metadata.monitor.destroy() end
-          if metadata.mimic and metadata.mimic.valid then metadata.mimic.destroy() end
+          safe_destroy(metadata.source)
+          safe_destroy(metadata.manager)
+          safe_destroy(metadata.monitor)
+          safe_destroy(metadata.mimic)
           
           -- clear storage index
           storage.beacons[index] = nil
@@ -184,8 +186,8 @@ local function attempt_migration(force)
           }
   
           -- remove monitor and mimic
-          metadata.monitor.destroy()
-          metadata.mimic.destroy()
+          safe_destroy(metadata.monitor)
+          safe_destroy(metadata.mimic)
           storage.beacons[index].monitor = nil
           storage.beacons[index].mimic = nil
         end
@@ -420,7 +422,7 @@ local function on_destroyed(event)
   if not metadata then error("error: nonstandard beacons could not find metadata for destroyed entity") end
 
   -- attempt to insert fuel into the event buffer, if possible
-  if event.buffer and metadata.source.get_fuel_inventory() then
+  if event.buffer and metadata.source.valid and metadata.source.get_fuel_inventory() then
     for _, item_stack in pairs(metadata.source.get_fuel_inventory().get_contents()) do
       event.buffer.insert{
         name = item_stack.name,
@@ -431,10 +433,10 @@ local function on_destroyed(event)
   end
 
   -- delete source entity
-  metadata.source.destroy()
-  metadata.manager.destroy()
-  if metadata.monitor then metadata.monitor.destroy() end
-  if metadata.mimic then metadata.mimic.destroy() end
+  safe_destroy(metadata.source)
+  safe_destroy(metadata.manager)
+  safe_destroy(metadata.monitor)
+  safe_destroy(metadata.mimic)
 
   -- remove storage index
   storage.beacons[event.entity.unit_number] = nil
@@ -480,11 +482,11 @@ script.on_event(defines.events.on_player_deconstructed_area, function (event)
   if count ~= 0 then
     for index, metadata in pairs(storage.beacons) do
       if not metadata.beacon.valid or not metadata.source.valid or not metadata.manager.valid or not metadata.mimic.valid or metadata.monitor and not metadata.monitor.valid then
-        if metadata.beacon.valid then metadata.beacon.destroy() end
-        if metadata.source.valid then metadata.source.destroy() end
-        if metadata.manager.valid then metadata.manager.destroy() end
-        if metadata.monitor and metadata.monitor.valid then metadata.monitor.destroy() end
-        if metadata.mimic and metadata.mimic.valid then metadata.mimic.destroy() end
+        safe_destroy(metadata.beacon)
+        safe_destroy(metadata.source)
+        safe_destroy(metadata.manager)
+        safe_destroy(metadata.monitor)
+        safe_destroy(metadata.mimic)
         storage.beacons[index] = nil
       end
     end
