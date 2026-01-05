@@ -173,10 +173,12 @@ local function attempt_migration(force)
           -- clear storage index
           storage.beacons[index] = nil
         elseif modded_beacons[metadata.beacon.name] and not metadata.monitor then
-          log("Adding monitor for: " .. metadata.beacon)
+          log("Adding monitor for:")
+          log(metadata.beacon)
           make_modded(metadata.beacon)
         elseif not modded_beacons[metadata.beacon.name] and metadata.monitor then
-          log("Removing monitor for: " .. metadata.beacon)
+          log("Removing monitor for:")
+          log(metadata.beacon)
           -- reset manager settings and clear source modules
           metadata.source.get_module_inventory().clear()
           metadata.manager.get_or_create_control_behavior().circuit_condition = {
