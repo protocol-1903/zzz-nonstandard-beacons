@@ -1,8 +1,27 @@
 local event_filter = assert(prototypes.mod_data["nsb-beacon-data"].data.event, "error: nonstandard beacon event filter not found!")
 local modded_beacons = assert(prototypes.mod_data["nsb-beacon-data"].data.modded_beacons, "error: nonstandard beacon data not found!")
+local tooltip_fields = assert(prototypes.mod_data["nsb-beacon-data"].data.tooltip_fields, "error: nonstandard beacon tooltip fields not found!")
+
+local xutil = require "util"
 
 log("Beacon Data:")
 log(serpent.block(modded_beacons))
+
+script.on_init(function ()
+  _G.storage = {
+    beacons = {},
+    modded_beacons = {},
+    deathrattles = {},
+    previous_version = script.active_mods["zzz-nonstandard-beacons"],
+    watched_beacons = {}
+  }
+end)
+
+local function safe_destroy(entity)
+  if entity and entity.valid then
+    entity.destroy()
+  end
+end
 
 local function make_modded(beacon)
   -- skip if already existant
@@ -278,15 +297,6 @@ local function attempt_migration(force)
   storage.modded_beacons = modded_beacons
 end
 
-script.on_init(function ()
-  _G.storage = {
-    beacons = {},
-    modded_beacons = {},
-    deathrattles = {},
-    previous_version = script.active_mods["zzz-nonstandard-beacons"]
-  }
-end)
-
 commands.add_command("update_beacons", "Attempt to update custom beacons via scripted migration. Used for mod development or to fix critical issues. Include optional paramater \"force_update\" to update entities regardless of detected changes.", function (command)
   attempt_migration(command.parameter == "force_update")
 end)
@@ -305,6 +315,7 @@ script.on_configuration_changed(function (event)
   storage.beacons = storage.beacons or {}
   storage.deathrattles = storage.deathrattles or {}
   storage.previous_version = script.active_mods["zzz-nonstandard-beacons"]
+  storage.watched_beacons = storage.watched_beacons or {}
   attempt_migration(storage.force_migrations)
   storage.force_migrations = nil
 end)
@@ -329,9 +340,11 @@ script.on_event(defines.events.on_object_destroyed, function(event)
       beacon.disabled_by_script = beacon_state == -1
       beacon.custom_status = beacon_state == -1 and {
         diode = defines.entity_status_diode.red, -- add custom status to reflect source status
-        label = beacon.to_be_deconstructed() and {"entity-status.marked-for-deconstruction"} or {"entity-status." .. (
-        source.prototype.burner_prototype and "no-fuel" or source.prototype.fluid_energy_source_prototype and "no-input-fluid" or
-        source.prototype.heat_energy_source_prototype and "low-temperature" or "low-power")}
+        label = {
+          beacon.to_be_deconstructed() and "entity-status.marked-for-deconstruction" or
+          beacon.get_module_inventory().is_empty() and "entity-status.no-modules-to-transmit" or
+          tooltip_fields[beacon.name].low_status or "unknown-status"
+        }
       } or nil -- clears if beacon is working as intended
       mimic_sections[1].active = beacon_state == 1 -- update the combinator with the current state
     end
@@ -353,9 +366,11 @@ script.on_event(defines.events.on_object_destroyed, function(event)
     beacon.disabled_by_script = source.status ~= defines.entity_status.working
     beacon.custom_status = source.status ~= defines.entity_status.working and {
       diode = defines.entity_status_diode.red, -- add custom status to reflect source status
-      label = beacon.to_be_deconstructed() and {"entity-status.marked-for-deconstruction"} or {"entity-status." .. (
-      source.prototype.burner_prototype and "no-fuel" or source.prototype.fluid_energy_source_prototype and "no-input-fluid" or
-      source.prototype.heat_energy_source_prototype and "low-temperature" or "low-power")}
+      label = {
+        beacon.to_be_deconstructed() and "entity-status.marked-for-deconstruction" or
+        beacon.get_module_inventory().is_empty() and "entity-status.no-modules-to-transmit" or
+        tooltip_fields[beacon.name].low_status or "unknown-status"
+      }
     } or nil -- clears if beacon is working as intended
     manager.get_or_create_control_behavior().circuit_condition = {
       comparator = source.status == defines.entity_status.working and "=" or "≠",
@@ -403,9 +418,7 @@ local function on_created(event)
   beacon.disabled_by_script = true
   beacon.custom_status = {
     diode = defines.entity_status_diode.red,
-    label = {"entity-status." .. (
-      source.prototype.burner_prototype and "no-fuel" or source.prototype.fluid_energy_source_prototype and "no-input-fluid" or
-      source.prototype.heat_energy_source_prototype and "low-temperature" or "low-power")}
+    label = {tooltip_fields[beacon.name].low_status}
   }
 
   -- save data and register event
@@ -531,3 +544,91 @@ script.on_event("nsb-beacon-rotate-reverse", function (event)
   if #sources ~= 1 then return end
   sources[1].rotate{reverse = true}
 end)
+
+local ticks_per_update = 2
+local updates_between_polls = 5
+
+-- showing custom tooltip data via custom_status
+script.on_nth_tick(ticks_per_update, function (event)
+  for _, player in pairs(game.players) do
+    if player.valid and player.selected and modded_beacons[player.selected.name] ~= nil then
+      local beacon = player.selected
+      storage.watched_beacons[beacon.unit_number] = event.tick
+      local metadata = storage.beacons[beacon.unit_number]
+      local source = metadata.source
+      local working = source.status == defines.entity_status.working
+      local modules = not beacon.get_module_inventory().is_empty()
+      -- TODO fluid consumption
+      -- TODO fluid temperature
+      -- TODO heat consumption
+      -- TODO burner item and count
+      local tooltip_data = tooltip_fields[beacon.name]
+      local current_consumption = source.consumption_bonus == 0 and tooltip_data.max_consumption[beacon.quality.name] or 
+        xutil.calculate_power(xutil.parse_power(tooltip_data.max_consumption[beacon.quality.name]) * (1 + source.consumption_bonus)) ..
+        " (" .. (source.consumption_bonus > 0 and "+" or "") .. tostring(math.floor(source.consumption_bonus * 100 + 0.01)) .. "%)" .. (tooltip_data.drain and  " + " .. tooltip_data.drain or "")
+      if source.consumption_bonus ~= 0 then
+        for i = 51 - current_consumption:len(), 0, -1 do
+          current_consumption = " " .. current_consumption
+        end
+        current_consumption = "\n" .. current_consumption
+      end
+      beacon.custom_status = {
+        diode = working and defines.entity_status_diode.green or defines.entity_status_diode.red,
+        label = {
+          "", -- concatenate strings
+          { -- entity status (actual)
+            working and "entity-status.working" or
+            beacon.to_be_deconstructed() and "entity-status.marked-for-deconstruction" or
+            beacon.get_module_inventory().is_empty() and "entity-status.no-modules-to-transmit" or
+            tooltip_data.low_status or "unknown-status"
+          },
+          "\n",
+          tooltip_data.header, -- consumes ___
+          "\n",
+          {
+            "",
+            {"description.max-energy-consumption"},
+            ": ",
+            {
+              "custom-tooltip.font-normal",
+              current_consumption
+            }
+          },
+          tooltip_data.drain and {
+            "",
+            {"description.min-energy-consumption"},
+            ": ",
+            {
+              "custom-tooltip.font-normal",
+              tooltip_data.drain
+            }
+          }
+        }
+      }
+    end
+  end
+end)
+
+-- slow poll entities to check if they are no longer viewed
+script.on_nth_tick(61, function (event)
+  for index, last_tick in pairs(storage.watched_beacons) do
+    if event.tick > last_tick + 600 then
+      game.print("clearing beacon " .. index)
+      local metadata = storage.beacons[index]
+      if metadata and metadata.beacon.valid then
+        local beacon = metadata.beacon
+        beacon.custom_status = beacon.status ~= defines.entity_status.working and {
+          diode = defines.entity_status_diode.red, -- add custom status to reflect source status
+          label = {
+            beacon.to_be_deconstructed() and "entity-status.marked-for-deconstruction" or
+            beacon.get_module_inventory().is_empty() and "entity-status.no-modules-to-transmit" or tooltip_fields[beacon.name].low_status
+          }
+        } or nil -- clears if beacon is working as intended
+      end
+      storage.watched_beacons[index] = nil
+    end
+  end
+end)
+
+
+-- slow polling beacons to check for invalid ones

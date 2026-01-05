@@ -109,6 +109,11 @@ if settings.startup["nsb-include-example-beacons"].value then
           starting_frame_deviation = 60
         }}
       },
+      effect_receiver = {
+        uses_beacon_effects = false,
+        uses_module_effects = true,
+        uses_surface_effects = false
+      },
       radius_visualisation_picture = {
         filename = "__base__/graphics/entity/beacon/beacon-radius-visualization.png",
         priority = "extra-high-no-scale",
@@ -145,6 +150,11 @@ if settings.startup["nsb-include-example-beacons"].value then
           { position = {0, 1}, direction = defines.direction.south },
           { position = {-1, 0}, direction = defines.direction.west }
         }
+      },
+      effect_receiver = {
+        uses_beacon_effects = false,
+        uses_module_effects = true,
+        uses_surface_effects = false
       },
       radius_visualisation_picture = {
         filename = "__base__/graphics/entity/beacon/beacon-radius-visualization.png",
