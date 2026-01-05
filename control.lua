@@ -567,7 +567,7 @@ script.on_nth_tick(ticks_per_update, function (event)
       local current_consumption = source.consumption_bonus == 0 and tooltip_data.max_consumption[beacon.quality.name] or 
         xutil.calculate_power(xutil.parse_power(tooltip_data.max_consumption[beacon.quality.name]) * (1 + source.consumption_bonus)) ..
         " (" .. (source.consumption_bonus > 0 and "+" or "") .. tostring(math.floor(source.consumption_bonus * 100 + 0.01)) .. "%)" .. (tooltip_data.drain and  " + " .. tooltip_data.drain or "")
-      if source.consumption_bonus ~= 0 then
+      if current_consumption:len() > 17 then
         for i = 51 - current_consumption:len(), 0, -1 do
           current_consumption = " " .. current_consumption
         end
