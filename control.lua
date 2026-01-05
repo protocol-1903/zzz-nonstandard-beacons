@@ -547,6 +547,7 @@ end)
 
 local ticks_per_update = 2
 local updates_between_polls = 5
+local fluid_consumption = {}
 
 -- showing custom tooltip data via custom_status
 script.on_nth_tick(ticks_per_update, function (event)
@@ -557,11 +558,11 @@ script.on_nth_tick(ticks_per_update, function (event)
       local metadata = storage.beacons[beacon.unit_number]
       local source = metadata.source
       local working = source.status == defines.entity_status.working
-      local modules = not beacon.get_module_inventory().is_empty()
+      local fuel_inventory = source.get_fuel_inventory()
+      local contents = fuel_inventory and not fuel_inventory.is_empty() and fuel_inventory.get_contents()
+      local fuel = contents and "[item=" .. contents[1].name .. "] x " .. tostring(contents[1].count)
       -- TODO fluid consumption
       -- TODO fluid temperature
-      -- TODO heat consumption
-      -- TODO burner item and count
       local tooltip_data = tooltip_fields[beacon.name]
       local current_consumption = source.consumption_bonus == 0 and tooltip_data.max_consumption[beacon.quality.name] or 
         xutil.calculate_power(xutil.parse_power(tooltip_data.max_consumption[beacon.quality.name]) * (1 + source.consumption_bonus)) ..
@@ -585,7 +586,7 @@ script.on_nth_tick(ticks_per_update, function (event)
           "\n",
           tooltip_data.header, -- consumes ___
           "\n",
-          {
+          { -- max consumption
             "",
             {"description.max-energy-consumption"},
             ": ",
@@ -594,15 +595,53 @@ script.on_nth_tick(ticks_per_update, function (event)
               current_consumption
             }
           },
-          tooltip_data.drain and {
+          tooltip_data.drain and { -- min consumption, if appliccable
             "",
+            "\n",
             {"description.min-energy-consumption"},
             ": ",
             {
               "custom-tooltip.font-normal",
               tooltip_data.drain
             }
-          }
+          } or "",
+          fuel and {
+            "",
+            "\n",
+            {"gui.fuel"},
+            ": ",
+            {
+              "custom-tooltip.font-normal",
+              fuel
+            },
+          } or "",
+          source.temperature and {
+            "",
+            "\n",
+            {"description.temperature"},
+            ": ",
+            {
+              "custom-tooltip.font-normal",
+              {
+                "",
+                tostring(source.temperature),
+                {"si-unit-degree-celsius"}
+              }
+            },
+            tooltip_data.minimum_temperature and {
+              "\n",
+              {"description.minimum-temperature"},
+              ": ",
+              {
+                "custom-tooltip.font-normal",
+                {
+                  "",
+                  tostring(tooltip_data.minimum_temperature),
+                  {"si-unit-degree-celsius"}
+                }
+              }
+            } or ""
+          } or ""
         }
       }
     end
