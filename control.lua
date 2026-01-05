@@ -624,7 +624,7 @@ script.on_nth_tick(ticks_per_update, function (event)
               "custom-tooltip.font-normal",
               {
                 "",
-                tostring(source.temperature),
+                tostring(math.floor(source.temperature * 100 + 0.01) / 100),
                 {"si-unit-degree-celsius"}
               }
             },
