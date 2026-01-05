@@ -90,6 +90,7 @@ for p, prototype in pairs(data.raw.beacon) do
       },
       module_slots = effect_receiver and effect_receiver.uses_module_effects and prototype.module_slots or 0, -- only copy if it uses module effects
       allowed_effects = {"consumption", "pollution", "speed", "productivity", "quality"},
+      quality_affects_energy_usage = true,
       collision_box = prototype.collision_box,
       collision_mask = { layers = {} },
       selection_box = prototype.selection_box,
