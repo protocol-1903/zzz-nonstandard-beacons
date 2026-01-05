@@ -3,8 +3,8 @@ for index, metadata in pairs(storage) do
   if index ~= "deathrattles" then
     if metadata.beacon.valid and metadata.source.valid and metadata.manager.valid then
       if metadata.source.to_be_deconstructed() then
-        beacon = metadata.beacon
-        source = metadata.source
+        local beacon = metadata.beacon
+        local source = metadata.source
 
         -- move modules back to the beacon
         for _, item_stack in pairs(source.get_module_inventory().get_contents()) do

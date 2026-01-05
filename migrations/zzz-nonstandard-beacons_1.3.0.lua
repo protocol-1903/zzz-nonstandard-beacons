@@ -3,7 +3,7 @@ if not storage.previous_version or storage.previous_version == script.active_mod
 local deathrattles = storage.deathrattles
 local beacons = storage
 beacons.deathrattles = nil
-storage = {
+_G.storage = {
   beacons = beacons,
   deathrattles = deathrattles
 }
