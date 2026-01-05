@@ -94,7 +94,7 @@ for p, prototype in pairs(data.raw.beacon) do
       collision_box = prototype.collision_box,
       collision_mask = { layers = {} },
       selection_box = prototype.selection_box,
-      selection_priority = 0,
+      selection_priority = (prototype.selection_priority or 50) - 1,
       hidden = true,
       hidden_in_factoriopedia = true
     }}
