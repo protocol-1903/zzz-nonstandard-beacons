@@ -89,7 +89,7 @@ for p, prototype in pairs(data.raw.beacon) do
     prototype.effect_receiver = nil
 
     -- set custom tooltip data
-    local fields = {}
+    local fields = prototype.custom_tooltip_fields or {}
     -- module/beacon effectiveness on the beacon
     fields[#fields + 1] = source.module_slots > 0 and {
       name = "",
@@ -100,7 +100,7 @@ for p, prototype in pairs(data.raw.beacon) do
       value = {"custom-tooltip.affected-by-beacons"}
     } or nil
 
-    prototype.custom_tooltip_fields = fields
+    prototype.custom_tooltip_fields = #fields ~= 0 and fields or nil
 
     local source_type = source.energy_source.type
     local fuel_category = #(source.energy_source.fuel_categories or {}) == 1 and source.energy_source.fuel_categories[1] or nil
@@ -150,7 +150,19 @@ for p, prototype in pairs(data.raw.beacon) do
       max_temperature = -- only applies to fluid sources when burns_fluid is false
         source.energy_source.maximum_temperature or false,
       min_temperature = -- only applies to heat sources, specifies minimum working temperature
-        source.energy_source.min_working_temperature or false
+        source.energy_source.min_working_temperature and {
+          "\n",
+          {"description.minimum-temperature"},
+          ": ",
+          {
+            "custom-tooltip.font-normal",
+            {
+              "",
+              tostring(source.energy_source.min_working_temperature),
+              {"si-unit-degree-celsius"}
+            }
+          }
+        } or ""
     }
     for _, quality in pairs(data.raw.quality or {}) do
       if quality.name ~= "quality-unknown" then

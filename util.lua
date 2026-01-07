@@ -1,24 +1,19 @@
 _G.xutil = xutil or {}
 
 xutil.calculate_power = function(energy)
-  local mult = 0
-  while energy >= 1000 do
-    energy = energy / 1000
-    mult = mult + 1
-  end
+  local exp = ("%e"):format(energy)
+  local mult = tonumber(exp:sub(-2))
+  local energy = tonumber(exp:sub(1, -4)) * (10 ^ (mult % 3))
   -- convert to 000 or 00.0 or 0.0
-  if energy >= 100 then
-    energy = math.floor(energy)
-  else
-    energy = math.floor(energy * 10) / 10
-  end
-  mult =
-    mult == 1 and "k" or mult == 2 and "M" or
-    mult == 3 and "G" or mult == 4 and "T" or
-    mult == 5 and "P" or mult == 6 and "E" or
-    mult == 7 and "Z" or mult == 8 and "Y" or
-    mult == 9 and "R" or mult == 10 and "Q" or ""
-  return tostring(energy) .. " " .. mult .. "W"
+  local long = energy >= 100
+  return (long and "%d %sW" or "%.1f %sW"):format(energy,
+    mult == 0 and "" or
+    mult <= 1 and "k" or mult <= 2 and "M" or
+    mult <= 3 and "G" or mult <= 4 and "T" or
+    mult <= 5 and "P" or mult <= 6 and "E" or
+    mult <= 7 and "Z" or mult <= 8 and "Y" or
+    mult <= 9 and "R" or mult <= 10 and "Q"
+  )
 end
 
 xutil.parse_power = function(energy)

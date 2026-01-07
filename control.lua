@@ -566,7 +566,7 @@ script.on_nth_tick(ticks_per_update, function (event)
       local tooltip_data = tooltip_fields[beacon.name]
       local current_consumption = source.consumption_bonus == 0 and tooltip_data.max_consumption[beacon.quality.name] or 
         xutil.calculate_power(xutil.parse_power(tooltip_data.max_consumption[beacon.quality.name]) * (1 + source.consumption_bonus)) ..
-        " (" .. (source.consumption_bonus > 0 and "+" or "") .. tostring(math.floor(source.consumption_bonus * 100 + 0.01)) .. "%)" .. (tooltip_data.drain and  " + " .. tooltip_data.drain or "")
+        " (" .. (source.consumption_bonus > 0 and "+" or "") .. ("%d%%)"):format(source.consumption_bonus * 100) .. (tooltip_data.drain and " + " .. tooltip_data.drain or "")
       if current_consumption:len() > 17 then
         for i = 51 - current_consumption:len(), 0, -1 do
           current_consumption = " " .. current_consumption
@@ -624,23 +624,11 @@ script.on_nth_tick(ticks_per_update, function (event)
               "custom-tooltip.font-normal",
               {
                 "",
-                tostring(math.floor(source.temperature * 100 + 0.01) / 100),
+                ("%.2f"):format(source.temperature),
                 {"si-unit-degree-celsius"}
               }
             },
-            tooltip_data.minimum_temperature and {
-              "\n",
-              {"description.minimum-temperature"},
-              ": ",
-              {
-                "custom-tooltip.font-normal",
-                {
-                  "",
-                  tostring(tooltip_data.minimum_temperature),
-                  {"si-unit-degree-celsius"}
-                }
-              }
-            } or ""
+            tooltip_data.minimum_temperature
           } or ""
         }
       }
