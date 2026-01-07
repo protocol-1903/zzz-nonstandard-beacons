@@ -14,15 +14,15 @@ for p, prototype in pairs(data.raw.beacon) do
     prototype.energy_source.type = prototype.energy_source.type == "electric-2-electric-boogaloo" and "electric" or prototype.energy_source.type
 
     -- copy for ease of use
-    local effect_receiver = prototype.effect_receiver
+    local effect_receiver = prototype.effect_receiver or {}
 
     -- store data for use during scripting
     event_filter[#event_filter+1] = {filter = "name", name = p}
     deconstruction_filter[#deconstruction_filter+1] = p
-    modded_beacons[p] = effect_receiver and effect_receiver.uses_module_effects or false
+    modded_beacons[p] = effect_receiver.uses_module_effects or false
 
     -- update if the value is used anywhere
-    uses_module_effects = uses_module_effects or effect_receiver and effect_receiver.uses_module_effects or false
+    uses_module_effects = uses_module_effects or effect_receiver.uses_module_effects or false
 
     -- create energy source entity, storing the 'disabled' localisation to simplify runtime scripting
     data:extend{{
@@ -54,12 +54,12 @@ for p, prototype in pairs(data.raw.beacon) do
       icons_positioning = {{inventory_index = defines.inventory.crafter_modules, scale = 0}},
       selectable_in_game = false,
       allow_copy_paste = false,
-      effect_receiver = effect_receiver and {
-        uses_beacon_effects = effect_receiver.uses_beacon_effects,
-        uses_module_effects = effect_receiver.uses_module_effects,
-        uses_surface_effects = effect_receiver.uses_surface_effects
+      effect_receiver = {
+        uses_beacon_effects = effect_receiver.uses_beacon_effects or false,
+        uses_module_effects = effect_receiver.uses_module_effects or false,
+        uses_surface_effects = effect_receiver.uses_surface_effects or false
       },
-      module_slots = effect_receiver and effect_receiver.uses_module_effects and prototype.module_slots or 0, -- only copy if it uses module effects
+      module_slots = effect_receiver.uses_module_effects and prototype.module_slots or 0, -- only copy if it uses module effects
       allowed_effects = {"consumption", "pollution", "speed", "productivity", "quality"},
       quality_affects_energy_usage = true,
       collision_box = prototype.collision_box,
