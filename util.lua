@@ -31,12 +31,9 @@ local mult_lookup = {
 xutil.calculate_power = function(energy)
   local exp = ("%e"):format(energy)
   local mult = tonumber(exp:sub(-2))
-  local mult2 = mult % 3
-  local energy = tonumber(exp:sub(1, -5)) * (10 ^ (mult2))
-  mult = (mult - mult2) / 3
-  -- convert to 000 or 00.0 or 0.0
-  local long = energy >= 100
-  return (long and "%d %sW" or "%.1f %sW"):format(energy, mult_lookup.int2str[mult])
+  local power = tonumber(exp:sub(1, -5)) * (10 ^ (mult % 3))
+  local long = power >= 100
+  return (long and "%d %sW" or "%.1f %sW"):format(power, mult_lookup.int2str[(mult - mult % 3) / 3])
 end
 
 xutil.parse_power = function(energy)
