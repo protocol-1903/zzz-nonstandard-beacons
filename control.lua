@@ -348,11 +348,7 @@ script.on_event(defines.events.on_object_destroyed, function(event)
       beacon.disabled_by_script = beacon_state == -1
       beacon.custom_status = beacon_state == -1 and {
         diode = defines.entity_status_diode.red, -- add custom status to reflect source status
-        label = {
-          beacon.to_be_deconstructed() and "entity-status.marked-for-deconstruction" or
-          beacon.get_module_inventory().is_empty() and "entity-status.no-modules-to-transmit" or
-          tooltip_fields[beacon.name].low_status or "unknown-status"
-        }
+        label = {tooltip_fields[beacon.name].low_status or "unknown-status"}
       } or nil -- clears if beacon is working as intended
       mimic_sections[1].active = beacon_state == 1 -- update the combinator with the current state
     end
@@ -374,11 +370,7 @@ script.on_event(defines.events.on_object_destroyed, function(event)
     beacon.disabled_by_script = source.status ~= defines.entity_status.working
     beacon.custom_status = source.status ~= defines.entity_status.working and {
       diode = defines.entity_status_diode.red, -- add custom status to reflect source status
-      label = {
-        beacon.to_be_deconstructed() and "entity-status.marked-for-deconstruction" or
-        beacon.get_module_inventory().is_empty() and "entity-status.no-modules-to-transmit" or
-        tooltip_fields[beacon.name].low_status or "unknown-status"
-      }
+      label = {tooltip_fields[beacon.name].low_status or "unknown-status"}
     } or nil -- clears if beacon is working as intended
     manager.get_or_create_control_behavior().circuit_condition = {
       comparator = source.status == defines.entity_status.working and "=" or "≠",
@@ -413,7 +405,7 @@ local function on_created(event)
   -- set circuit settings
   local source_behaviour = source.get_or_create_control_behavior()
   local manager_behaviour = manager.get_or_create_control_behavior()
-  
+
   source_behaviour.circuit_read_working = true
   source_behaviour.circuit_working_signal = {type = "item", name = "nsb-internal-item"}
   manager_behaviour.circuit_enable_disable = true
@@ -426,7 +418,7 @@ local function on_created(event)
   beacon.disabled_by_script = true
   beacon.custom_status = {
     diode = defines.entity_status_diode.red,
-    label = {tooltip_fields[beacon.name].low_status}
+    label = {tooltip_fields[beacon.name].low_status or "unknown-status"}
   }
 
   -- save data and register event
@@ -509,7 +501,7 @@ script.on_event(defines.events.on_player_deconstructed_area, function (event)
         to_remove[index] = true
       end
     end
-    for index in to_remove do
+    for index in pairs(to_remove) do
       storage.beacons[index] = nil
     end
   end
