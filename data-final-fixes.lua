@@ -148,9 +148,23 @@ for p, prototype in pairs(data.raw.beacon) do
       drain = -- only a property of electric sources
         source.energy_source.drain and xutil.calculate_power(xutil.parse_power(source.energy_source.drain)) or false,
       max_temperature = -- only applies to fluid sources when burns_fluid is false
-        source.energy_source.maximum_temperature or false,
+        source.energy_source.maximum_temperature and {
+          "",
+          "\n",
+          {"description.maximum-temperature"},
+          ": ",
+          {
+            "custom-tooltip.font-normal",
+            {
+              "",
+              ("%df"):format(source.energy_source.maximum_temperature),
+              {"si-unit-degree-celsius"}
+            }
+          }
+        } or "",
       min_temperature = -- only applies to heat sources, specifies minimum working temperature
         source.energy_source.min_working_temperature and {
+          "",
           "\n",
           {"description.minimum-temperature"},
           ": ",

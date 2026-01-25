@@ -560,14 +560,14 @@ script.on_nth_tick(ticks_per_update, function (event)
       local fuel_inventory = source.get_fuel_inventory()
       local contents = fuel_inventory and not fuel_inventory.is_empty() and fuel_inventory.get_contents()
       local fuel = contents and "[item=" .. contents[1].name .. "] x " .. tostring(contents[1].count)
-      -- TODO fluid consumption
-      -- TODO fluid temperature
+      local fluid = #source.fluidbox ~= 0 and (source.fluidbox[1] or {}) or nil
+      local max_fluid_per_second = fluid and source.prototype.fluid_energy_source_prototype.fluid_usage_per_tick * 60
       local tooltip_data = tooltip_fields[beacon.name]
       local current_consumption = source.consumption_bonus == 0 and tooltip_data.max_consumption[beacon.quality.name] or 
         xutil.calculate_power(xutil.parse_power(tooltip_data.max_consumption[beacon.quality.name]) * (1 + source.consumption_bonus)) ..
         " (" .. (source.consumption_bonus > 0 and "+" or "") .. ("%d%%)"):format(source.consumption_bonus * 100) .. (tooltip_data.drain and " + " .. tooltip_data.drain or "")
       if current_consumption:len() > 17 then
-        for i = 51 - current_consumption:len(), 0, -1 do
+        for _ = 51 - current_consumption:len(), 0, -1 do
           current_consumption = " " .. current_consumption
         end
         current_consumption = "\n" .. current_consumption
@@ -628,6 +628,60 @@ script.on_nth_tick(ticks_per_update, function (event)
               }
             },
             tooltip_data.minimum_temperature
+          } or "",
+          fluid and {
+            "",
+            "\n",
+            {"description.fluid-consumption"},
+            ": ",
+            {
+              "custom-tooltip.font-normal",
+              {
+                "description.of",
+                {
+                  "",
+                  ("%d"):format(working and max_fluid_per_second or 0),
+                  {"per-second-suffix"}
+                },
+                {
+                  "",
+                  ("%d"):format(max_fluid_per_second),
+                  {"per-second-suffix"}
+                }
+              }
+            },
+            fluid.amount and {
+              "",
+              "\n",
+              prototypes.fluid[fluid.name].localised_name,
+              ": ",
+              {
+                "custom-tooltip.font-normal",
+                {
+                  "description.of",
+                  ("%d"):format(fluid.amount),
+                  ("%d"):format(source.fluidbox.get_capacity(1))
+                }
+              },
+            } or "",
+            fluid.temperature and {
+              "",
+              "\n",
+              {
+                "description.fluid-temperature",
+                prototypes.fluid[fluid.name].localised_name
+              },
+              ": ",
+              {
+                "custom-tooltip.font-normal",
+                {
+                  "",
+                  ("%.2f"):format(fluid.temperature),
+                  {"si-unit-degree-celsius"}
+                }
+              }
+            } or "",
+            tooltip_data.max_temperature
           } or ""
         }
       }
