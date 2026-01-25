@@ -39,7 +39,7 @@ local function make_modded(beacon)
     position = beacon.position,
     force = beacon.force
   }
-  
+
   -- connect monitor and mimic
   manager.get_wire_connector(defines.wire_connector_id.circuit_green, true).connect_to(monitor.get_wire_connector(defines.wire_connector_id.circuit_green, true), false, defines.wire_origin.script)
   manager.get_wire_connector(defines.wire_connector_id.circuit_green, true).connect_to(mimic.get_wire_connector(defines.wire_connector_id.circuit_green, true), false, defines.wire_origin.script)
@@ -49,14 +49,14 @@ local function make_modded(beacon)
   mimic_behaviour.sections[1].set_slot(1, {value = {type = "item", name = "nsb-internal-item", quality = "normal"}, min = -1})
   mimic_behaviour.sections[1].active = false
   mimic_behaviour.add_section().multiplier = -1
-  
+
   -- update manager
   manager.get_or_create_control_behavior().circuit_condition = {
     comparator = "≠",
     constant = 0,
     first_signal = { name = "signal-anything", type = "virtual" }
   }
-  
+
   -- initialize mimic and source
   source.get_module_inventory().clear()
   for index, item_stack in pairs(beacon.get_module_inventory().get_contents()) do
@@ -66,7 +66,7 @@ local function make_modded(beacon)
       min = item_stack.count
     })
   end
-  
+
   -- add data to storage
   storage.beacons[beacon.unit_number].mimic = mimic
   storage.beacons[beacon.unit_number].monitor = monitor
@@ -74,7 +74,15 @@ end
 
 local function valid(metadata)
   if not metadata then return false end
-  if not metadata.beacon or not metadata.beacon.valid then
+  if not metadata.beacon or not metadata.beacon.valid or
+    not metadata.source or not metadata.source.valid or
+    not metadata.manager or not metadata.manager.valid or
+    metadata.monitor and not metadata.monitor.valid or
+    metadata.mimic and not metadata.mimic.valid then
+    log("Found invalid beacon data:")
+    log(metadata.beacon)
+
+    safe_destroy(metadata.beacon)
     safe_destroy(metadata.source)
     safe_destroy(metadata.manager)
     safe_destroy(metadata.monitor)
@@ -95,7 +103,7 @@ end
 
 local function attempt_migration(force)
   local ninjas = 0
-  log("NSB: Checking for invalid data")
+  log("Nonstandard Beacons: Checking for invalid data")
   for _, metatable in pairs{
     storage.modded_beacons,
     prototypes.mod_data["nsb-beacon-data"].data.modded_beacons
@@ -156,18 +164,18 @@ local function attempt_migration(force)
   end
 
   log("Removed " .. ninjas .. " ninjas")
-  log("NSB: attempting migrations")
+  log("Nonstandard Beacons: attempting migrations")
   -- attempt to update migrated entities
   if modded_beacons ~= storage.modded_beacons or force then
     log("Migrating beacons")
 
     local beacons_removed = 0
-    
+
     local changes = {}
     for prototype, value in pairs(modded_beacons) do
       changes[prototype] = force or value ~= storage.modded_beacons[prototype]
     end
-    
+
     -- migrate already stored beacons
     for index, metadata in pairs(storage.beacons or {}) do
       if not valid(metadata) then -- beacon removed, destroy entities
@@ -178,17 +186,17 @@ local function attempt_migration(force)
       elseif changes[metadata.beacon.name] then
         if modded_beacons[metadata.beacon.name] == nil then
           log("Removing custom entities for: " .. metadata.beacon)
-          
+
           -- no longer custom, revert to normal
           metadata.beacon.disabled_by_script = false
           metadata.beacon.custom_status = nil
-          
+
           -- remove unneeded entities
           safe_destroy(metadata.source)
           safe_destroy(metadata.manager)
           safe_destroy(metadata.monitor)
           safe_destroy(metadata.mimic)
-          
+
           -- clear storage index
           storage.beacons[index] = nil
         elseif modded_beacons[metadata.beacon.name] and not metadata.monitor then
@@ -205,7 +213,7 @@ local function attempt_migration(force)
             constant = 0,
             first_signal = { name = "nsb-internal-item", type = "item" }
           }
-  
+
           -- remove monitor and mimic
           safe_destroy(metadata.monitor)
           safe_destroy(metadata.mimic)
@@ -218,7 +226,7 @@ local function attempt_migration(force)
     log("Old data: " .. serpent.block(storage.modded_beacons))
     log("New data: " .. serpent.block(modded_beacons))
     log("Changes: " .. serpent.block(changes))
-  
+
     -- migrate existing beacons
     for prototype, changed in pairs(changes) do
       if changed and storage.modded_beacons[prototype] == nil then
@@ -239,20 +247,20 @@ local function attempt_migration(force)
                 quality = beacon.quality,
                 force = beacon.force
               }
-    
+
               local manager = beacon.surface.create_entity{
                 name = "nsb-internal-manager",
                 position = beacon.position,
                 force = beacon.force
               }
-              
+
               -- connect source, manager, mimic, and (?) monitor
               manager.get_wire_connector(defines.wire_connector_id.circuit_green, true).connect_to(source.get_wire_connector(defines.wire_connector_id.circuit_green, true), false, defines.wire_origin.script)
-              
+
               -- set circuit settings
               local source_behaviour = source.get_or_create_control_behavior()
               local manager_behaviour = manager.get_or_create_control_behavior()
-              
+
               source_behaviour.circuit_read_working = true
               source_behaviour.circuit_working_signal = {type = "item", name = "nsb-internal-item"}
               manager_behaviour.circuit_enable_disable = true
@@ -261,7 +269,7 @@ local function attempt_migration(force)
                 constant = 0,
                 first_signal = { name = "nsb-internal-item", type = "item" }
               }
-    
+
               -- save data and register event
               storage.beacons[beacon.unit_number] = {beacon = beacon, source = source, manager = manager}
               register_sacrifice(manager, storage.beacons[beacon.unit_number])
@@ -274,7 +282,7 @@ local function attempt_migration(force)
       end
     end
   end
-  
+
   -- adjust moduled beacons, items may have been converted/migrated/removed
   for _, metadata in pairs(storage.beacons) do
     -- only apply to beacons that have not changed, otherwise they've already been properly updated
@@ -331,7 +339,7 @@ script.on_event(defines.events.on_object_destroyed, function(event)
   local monitor = metadata.monitor
 
   -- something got invalidated, do nothing
-  if not beacon.valid or not source.valid or not manager.valid or monitor and not monitor.valid or mimic and not mimic.valid then return end
+  if not valid(metadata) then return end
 
   if monitor then -- supports modules, do complex logic
     local mimic_sections = mimic.get_or_create_control_behavior().sections
@@ -398,10 +406,10 @@ local function on_created(event)
     position = beacon.position,
     force = beacon.force
   }
-  
+
   -- connect source, manager, mimic, and (?) monitor
   manager.get_wire_connector(defines.wire_connector_id.circuit_green, true).connect_to(source.get_wire_connector(defines.wire_connector_id.circuit_green, true), false, defines.wire_origin.script)
-  
+
   -- set circuit settings
   local source_behaviour = source.get_or_create_control_behavior()
   local manager_behaviour = manager.get_or_create_control_behavior()
@@ -424,7 +432,7 @@ local function on_created(event)
   -- save data and register event
   storage.beacons[beacon.unit_number] = {beacon = beacon, source = source, manager = manager}
   register_sacrifice(manager, storage.beacons[beacon.unit_number])
-            
+
   if storage.modded_beacons[beacon.name] then
     make_modded(beacon)
   end
@@ -495,15 +503,14 @@ script.on_event(defines.events.on_player_deconstructed_area, function (event)
   }
 
   if count ~= 0 then
+    local to_remove = {}
     for index, metadata in pairs(storage.beacons) do
-      if not metadata.beacon.valid or not metadata.source.valid or not metadata.manager.valid or not metadata.mimic.valid or metadata.monitor and not metadata.monitor.valid then
-        safe_destroy(metadata.beacon)
-        safe_destroy(metadata.source)
-        safe_destroy(metadata.manager)
-        safe_destroy(metadata.monitor)
-        safe_destroy(metadata.mimic)
-        storage.beacons[index] = nil
+      if not valid(metadata) then
+        to_remove[index] = true
       end
+    end
+    for index in to_remove do
+      storage.beacons[index] = nil
     end
   end
 end)
@@ -656,6 +663,5 @@ script.on_nth_tick(61, function (event)
     end
   end
 end)
-
 
 -- slow polling beacons to check for invalid ones
