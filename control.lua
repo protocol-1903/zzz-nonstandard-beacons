@@ -567,7 +567,7 @@ script.on_nth_tick(ticks_per_update, function (event)
         xutil.calculate_power(xutil.parse_power(tooltip_data.max_consumption[beacon.quality.name]) * (1 + source.consumption_bonus)) ..
         " (" .. (source.consumption_bonus > 0 and "+" or "") .. ("%d%%)"):format(source.consumption_bonus * 100) .. (tooltip_data.drain and " + " .. tooltip_data.drain or "")
       if current_consumption:len() > 17 then
-        for _ = 51 - current_consumption:len(), 0, -1 do
+        for _ = 49 - current_consumption:len(), 0, -1 do
           current_consumption = " " .. current_consumption
         end
         current_consumption = "\n" .. current_consumption
@@ -693,7 +693,6 @@ end)
 script.on_nth_tick(61, function (event)
   for index, last_tick in pairs(storage.watched_beacons) do
     if event.tick > last_tick + 600 then
-      game.print("clearing beacon " .. index)
       local metadata = storage.beacons[index]
       if metadata and metadata.beacon.valid then
         local beacon = metadata.beacon
