@@ -15,6 +15,10 @@ for p, prototype in pairs(data.raw.beacon) do
 
     -- copy for ease of use
     local effect_receiver = prototype.effect_receiver or {}
+    local recipe = prototype.source_recipe
+    prototype.source_recipe = nil
+    local source_fluidboxes = prototype.source_fluidboxes
+    prototype.source_fluidboxes = nil
 
     -- store data for use during scripting
     event_filter[#event_filter+1] = {filter = "name", name = p}
@@ -37,7 +41,8 @@ for p, prototype in pairs(data.raw.beacon) do
       energy_usage = prototype.energy_usage,
       energy_source = prototype.energy_source,
       crafting_categories = {"nsb-filler-category"},
-      fixed_recipe = "nsb-filler-recipe",
+      fixed_recipe = recipe or "nsb-filler-recipe",
+      fluid_boxes = source_fluidboxes,
       crafting_speed = 1,
       create_corpse_on_death = false,
       flags = {
