@@ -1,6 +1,6 @@
 {
   "name": "zzz-nonstandard-beacons",
-  "version": "1.4.0",
+  "version": "1.4.1",
   "title": "Nonstandard Beacons",
   "description": "Library mod for custom beacons. See mod page or data.lua for documentation for use.",
   "author": "protocol_1903",
@@ -8,6 +8,6 @@
   "factorio_version": "2.0",
   "dependencies": [
     "base >= 2.0.58",
-    "module-inserter >= 1.0.1"
+    "? module-inserter >= 1.0.1"
   ]
 }
