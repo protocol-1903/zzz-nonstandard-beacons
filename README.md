@@ -61,4 +61,5 @@ Nonstandard Beacons includes some new features that you can use on custom beacon
 
 If you have any suggestions for future features or compatability, let me know. Creating a discussion on the shelved issues/features makes it more likely that they will be implemented.
 
+My mods are made 100% by humans, with no computer generated code or graphics.
 As always, if you have a mod idea, let me know and I can look into it.

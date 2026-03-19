@@ -4,7 +4,8 @@
   "title": "Nonstandard Beacons",
   "description": "Library mod for custom beacons. See mod page or data.lua for documentation for use.",
   "author": "protocol_1903",
-  "homepage": "https://discord.gg/K3fXMGVc4z",
+  "contact": "https://discord.gg/K3fXMGVc4z",
+  "homepage": "https://github.com/protocol-1903/zzz-nonstandard-beacons",
   "factorio_version": "2.0",
   "dependencies": [
     "base >= 2.0.58",
