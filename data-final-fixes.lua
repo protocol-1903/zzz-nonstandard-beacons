@@ -1,4 +1,4 @@
-local xutil = require "util"
+require "__perel__.util.general"
 
 local uses_module_effects = false
 local event_filter, deconstruction_filter, modded_beacons, tooltip_fields = {}, {}, {}, {}
@@ -151,7 +151,7 @@ for p, prototype in pairs(data.raw.beacon) do
       },
       max_consumption = {}, -- a property of all sources. differs per quality level
       drain = -- only a property of electric sources
-        source.energy_source.drain and xutil.calculate_power(xutil.parse_power(source.energy_source.drain)) or false,
+        source.energy_source.drain and perel.calculate_power(perel.parse_power(source.energy_source.drain)) or false,
       max_temperature = -- only applies to fluid sources when burns_fluid is false
         source.energy_source.maximum_temperature and {
           "",
@@ -186,7 +186,7 @@ for p, prototype in pairs(data.raw.beacon) do
     for _, quality in pairs(data.raw.quality or {}) do
       if quality.name ~= "quality-unknown" then
         tooltip_fields[prototype.name].max_consumption[quality.name] =
-          xutil.calculate_power(xutil.parse_power(prototype.energy_usage) * (quality.crafting_machine_energy_usage_multiplier or 1))
+          perel.calculate_power(perel.parse_power(prototype.energy_usage) * (quality.crafting_machine_energy_usage_multiplier or 1))
       end
     end
   end

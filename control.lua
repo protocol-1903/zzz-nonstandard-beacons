@@ -2,7 +2,7 @@ local event_filter = assert(prototypes.mod_data["nsb-beacon-data"].data.event, "
 local modded_beacons = assert(prototypes.mod_data["nsb-beacon-data"].data.modded_beacons, "error: nonstandard beacon data not found!")
 local tooltip_fields = assert(prototypes.mod_data["nsb-beacon-data"].data.tooltip_fields, "error: nonstandard beacon tooltip fields not found!")
 
-local xutil = require "util"
+require "__perel__.util.general"
 
 log("Beacon Data:")
 log(serpent.block(modded_beacons))
@@ -564,7 +564,7 @@ script.on_nth_tick(ticks_per_update, function (event)
       local max_fluid_per_second = fluid and source.prototype.fluid_energy_source_prototype.fluid_usage_per_tick * 60
       local tooltip_data = tooltip_fields[beacon.name]
       local current_consumption = source.consumption_bonus == 0 and tooltip_data.max_consumption[beacon.quality.name] or 
-        xutil.calculate_power(xutil.parse_power(tooltip_data.max_consumption[beacon.quality.name]) * (1 + source.consumption_bonus)) ..
+        perel.calculate_power(perel.parse_power(tooltip_data.max_consumption[beacon.quality.name]) * (1 + source.consumption_bonus)) ..
         " (" .. (source.consumption_bonus > 0 and "+" or "") .. ("%d%%)"):format(source.consumption_bonus * 100) .. (tooltip_data.drain and " + " .. tooltip_data.drain or "")
       if current_consumption:len() > 17 then
         for _ = 49 - current_consumption:len(), 0, -1 do
