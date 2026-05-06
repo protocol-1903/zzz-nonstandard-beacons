@@ -3,6 +3,7 @@ Version: 1.4.2
 Date: ???
   Changes:
     - Added dependency on PEREL for utilities
+    - Adjusted line overflow for power consumption to be slightly better, most of the time. Resolves https://github.com/protocol-1903/zzz-nonstandard-beacons/issues/12
   Bugfixes:
     - Fixed that -80% = limit was not shown. Resolves https://github.com/protocol-1903/zzz-nonstandard-beacons/issues/13
     - Fixed that minimum temperature for heat powered beacons was not shown
