@@ -545,8 +545,6 @@ script.on_event("nsb-beacon-rotate-reverse", function (event)
 end)
 
 local ticks_per_update = 2
-local updates_between_polls = 5
-local fluid_consumption = {}
 
 -- showing custom tooltip data via custom_status
 script.on_nth_tick(ticks_per_update, function (event)
@@ -563,12 +561,12 @@ script.on_nth_tick(ticks_per_update, function (event)
       local fluid = #source.fluidbox ~= 0 and (source.fluidbox[1] or {}) or nil
       local max_fluid_per_second = fluid and source.prototype.fluid_energy_source_prototype.fluid_usage_per_tick * 60
       local tooltip_data = tooltip_fields[beacon.name]
-      local current_consumption = source.consumption_bonus == 0 and tooltip_data.max_consumption[beacon.quality.name] or 
+      local current_consumption = source.consumption_bonus == 0 and tooltip_data.max_consumption[beacon.quality.name] or
         perel.calculate_power(perel.parse_power(tooltip_data.max_consumption[beacon.quality.name]) * (1 + source.consumption_bonus)) ..
-        " (" .. (source.consumption_bonus > 0 and "+" or "") .. ("%d%%)"):format(source.consumption_bonus * 100) .. (tooltip_data.drain and " + " .. tooltip_data.drain or "")
+        (source.consumption_bonus > 0 and " (+%d%%)" or source.consumption_bonus <= -0.80000001 and " (%d%% = limit)" or " (%d%%)"):format(source.consumption_bonus * 100) .. (tooltip_data.drain and " + " .. tooltip_data.drain or "")
       if current_consumption:len() > 17 then
-        for _ = 49 - current_consumption:len(), 0, -1 do
-          current_consumption = " " .. current_consumption
+        for _ = 38 - current_consumption:len(), 0, -1 do
+          current_consumption = "  " .. current_consumption
         end
         current_consumption = "\n" .. current_consumption
       end

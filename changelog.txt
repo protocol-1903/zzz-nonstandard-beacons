@@ -4,6 +4,7 @@ Date: ???
   Changes:
     - Added dependency on PEREL for utilities
   Bugfixes:
+    - Fixed that -80% = limit was not shown. Resolves https://github.com/protocol-1903/zzz-nonstandard-beacons/issues/13
     - Fixed that minimum temperature for heat powered beacons was not shown
     - Fixed that maximum temperature for heat powered beacons was not properly formatted. Resolves https://github.com/protocol-1903/zzz-nonstandard-beacons/issues/11
 ---------------------------------------------------------------------------------------------------
