@@ -623,11 +623,11 @@ script.on_nth_tick(ticks_per_update, function (event)
               "custom-tooltip.font-normal",
               {
                 "",
-                ("%.2f"):format(source.temperature),
+                perel.calculate_si(source.temperature),
                 {"si-unit-degree-celsius"}
               }
             },
-            tooltip_data.minimum_temperature
+            tooltip_data.min_temperature
           } or "",
           fluid and {
             "",

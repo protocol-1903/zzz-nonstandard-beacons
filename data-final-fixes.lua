@@ -162,7 +162,7 @@ for p, prototype in pairs(data.raw.beacon) do
             "custom-tooltip.font-normal",
             {
               "",
-              ("%df"):format(source.energy_source.maximum_temperature),
+              ("%d"):format(source.energy_source.maximum_temperature),
               {"si-unit-degree-celsius"}
             }
           }
