@@ -229,18 +229,19 @@ local function attempt_migration(force)
 
     -- migrate existing beacons
     for prototype, changed in pairs(changes) do
-      if changed and storage.modded_beacons[prototype] == nil then
-        log("Nonstandard Beacons: attempting migrations for prototype: " .. prototype)
-        -- was not previously custom, must be made custom
-        for _, surface in pairs(game.surfaces) do
-          log("Searching surface: " .. surface.name)
-          for _, beacon in pairs(surface.find_entities_filtered{
-            name = prototype,
-            type = "beacon"
-          }) do
-            if not storage.beacons[beacon.unit_number] then
-              log("Found unmodded beacon: ")
-              log(beacon)
+      if not prototypes.entity[prototype] then
+        log("Nonstandard Beacons: Skipping migration for deleted prototype: " .. tostring(prototype))
+      else
+
+        if changed and storage.modded_beacons[prototype] == nil then
+          log("Nonstandard Beacons: attempting migrations for prototype: " .. prototype)
+          -- was not previously custom, must be made custom
+          for _, surface in pairs(game.surfaces) do
+            log("Searching surface: " .. surface.name)
+            for _, beacon in pairs(surface.find_entities_filtered{
+              name = prototype,
+              type = "beacon"
+            }) do
               local source = beacon.surface.create_entity{
                 name = beacon.name .. "-source",
                 position = beacon.position,
@@ -254,10 +255,8 @@ local function attempt_migration(force)
                 force = beacon.force
               }
 
-              -- connect source, manager, mimic, and (?) monitor
               manager.get_wire_connector(defines.wire_connector_id.circuit_green, true).connect_to(source.get_wire_connector(defines.wire_connector_id.circuit_green, true), false, defines.wire_origin.script)
 
-              -- set circuit settings
               local source_behaviour = source.get_or_create_control_behavior()
               local manager_behaviour = manager.get_or_create_control_behavior()
 
@@ -270,7 +269,6 @@ local function attempt_migration(force)
                 first_signal = { name = "nsb-internal-item", type = "item" }
               }
 
-              -- save data and register event
               storage.beacons[beacon.unit_number] = {beacon = beacon, source = source, manager = manager}
               register_sacrifice(manager, storage.beacons[beacon.unit_number])
             end
@@ -279,6 +277,7 @@ local function attempt_migration(force)
             end
           end
         end
+
       end
     end
   end
