@@ -487,11 +487,14 @@ script.on_event(defines.events.on_player_deconstructed_area, function (event)
   -- quit if alt-deconstructing, or if non-editor (cause editor is the reason this handler exists)
   if event.alt or game.players[event.player_index].controller_type ~= defines.controllers.editor then return end
   -- recreate deconstruction logic cause... reasons
+  local decon_name = prototypes.mod_data["nsb-beacon-data"].data.decon
+  if not decon_name or not prototypes.entity[decon_name] then return end
+
   local count = event.surface.count_entities_filtered{
     area = event.area,
     quality = event.quality,
     type = "beacon",
-    name = assert(prototypes.mod_data["nsb-beacon-data"].data.decon, "error: nonstandard beacon deconstruction entity filter not found!")
+    name = decon_name
   }
 
   if count ~= 0 then
