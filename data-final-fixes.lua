@@ -1,17 +1,31 @@
 require "__perel__.util.general"
 
 local uses_module_effects = false
-local event_filter, deconstruction_filter, modded_beacons, tooltip_fields = {}, {}, {}, {}
+
+local event_filter = {} --[[@as EventFilter]]
+local deconstruction_filter = {} --[[@as string[] ]]
+local custom_beacon_prototypes = {} --[[@as {[string]: CustomBeaconConfiguration}}]]
+local tooltip_fields = {}
+
+---@class (partial) data.BeaconPrototype
+---@field effect_receiver data.EffectReceiver?
+---@field source_recipe string?
+---@field source_fluidboxes data.FluidBox[]?
+
+---@class CustomBeaconConfiguration
+---@field uses_module_effects boolean
 
 for p, prototype in pairs(data.raw.beacon) do
   if prototype.energy_source.type ~= "void" and prototype.energy_source.type ~= "electric" then
+    ---@diagnostic disable-next-line: cast-type-mismatch
+    ---@cast prototype.energy_source data.EnergySource
     -- validate optional properties
     if prototype.effect_receiver and (prototype.effect_receiver.uses_beacon_effects or prototype.effect_receiver.uses_surface_effects) and prototype.effect_receiver.uses_module_effects then
       error("Failed to load nonstandard beacon " .. p .. "\neffect_receiver.uses_beacon_effects and effect_receiver.uses_module_effects cannot be used together!")
     end
 
     -- replace electric boogaloo
-    prototype.energy_source.type = prototype.energy_source.type == "electric-2-electric-boogaloo" and "electric" or prototype.energy_source.type
+    prototype.energy_source.type = prototype.energy_source.type == "electric-2-electric-boogaloo" and "electric" or prototype.energy_source.type --[[@as "electric"|"void"|"burner"|"heat"|"fluid"]]
 
     -- copy for ease of use
     local effect_receiver = prototype.effect_receiver or {}
@@ -21,12 +35,17 @@ for p, prototype in pairs(data.raw.beacon) do
     prototype.source_fluidboxes = nil
 
     -- store data for use during scripting
+    ---@diagnostic disable-next-line: missing-fields
+    local custom_beacon_configuration = {} --[[@as CustomBeaconConfiguration]]
+
     event_filter[#event_filter+1] = {filter = "name", name = p}
     deconstruction_filter[#deconstruction_filter+1] = p
-    modded_beacons[p] = effect_receiver.uses_module_effects or false
+    custom_beacon_prototypes[p] = custom_beacon_configuration
+
+    custom_beacon_configuration.uses_module_effects = effect_receiver.uses_module_effects or false
 
     -- update if the value is used anywhere
-    uses_module_effects = uses_module_effects or effect_receiver.uses_module_effects or false
+    uses_module_effects = uses_module_effects or custom_beacon_configuration.uses_module_effects
 
     -- create energy source entity, storing the 'disabled' localisation to simplify runtime scripting
     data:extend{{
@@ -199,7 +218,7 @@ if uses_module_effects then
       if settings.startup["nsb-override-quality"].value then
         prototype.crafting_machine_module_slots_bonus = prototype.beacon_module_slots_bonus
       else
-        error("Failed to load quality " .. p .. ", crafting_machine_module_slots_bonus must not be less than beacon_module_slots_bonus!")
+        error("\n\nFailed to load quality [" .. p .. "], crafting_machine_module_slots_bonus must not be less than beacon_module_slots_bonus! Optionally, turn on the mod setting to override quality values.\n\n")
       end
     end
   end
@@ -216,7 +235,7 @@ data:extend{
     type = "recipe",
     name = "nsb-filler-recipe",
     icon = util.empty_icon().icon,
-    category = "nsb-filler-category",
+    categories = {"nsb-filler-category"},
     hidden = true,
     hidden_in_factoriopedia = true
   },
@@ -224,12 +243,12 @@ data:extend{
     type = "recipe",
     name = "nsb-internal-recipe",
     icon = util.empty_icon().icon,
-    category = "nsb-filler-category",
-    ingredients = {{ type = "item", name = "nsb-internal-item", amount = 1, ignored_by_stats = 1}},
+    categories = {"nsb-filler-category"},
+    raise_on_crafted = true,
     hidden = true,
     hidden_in_factoriopedia = true
   },
-  { -- hidden item for recipe and signals, can use existing item but this one is garunteed to work
+  { -- hidden item for signals, can use existing item but this one is garunteed to work
     type = "item",
     name = "nsb-internal-item",
     icon = util.empty_icon().icon,
@@ -311,11 +330,11 @@ data:extend{
   },
   { -- smuggle some simple data to runtime
     type = "mod-data",
-    name = "nsb-beacon-data",
+    name = "zzz-nonstandard-beacons",
     data = {
-      event = event_filter,
-      decon = deconstruction_filter,
-      modded_beacons = modded_beacons,
+      event_filter = event_filter,
+      deconstruction_filter = deconstruction_filter,
+      custom_beacon_prototypes = custom_beacon_prototypes,
       tooltip_fields = tooltip_fields
     },
     hidden = true,
