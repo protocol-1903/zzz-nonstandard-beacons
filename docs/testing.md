@@ -54,6 +54,13 @@ their viewing/actions, then disconnects/rejoins one. Sprite startup is serialize
 ## Candidate results
 
 These are new original-ID contribution results, not inherited NSBC acceptance claims.
+Implementation and fixtures are recorded in commit
+`2e9a004887c1a1c555abe8079329f276beb6511d`; the following report update changes documentation
+only. The audited dry-run archive is `zzz-nonstandard-beacons_2.0.0.zip`, SHA-256
+`5ceff1b175d97bdff9b4619a439ae742d0e65f9fe9181003784ab5471e3bf16c`.
+Its sorted file-inventory digest is
+`4d654f4e56a072d38e73950b965e82328ff0ce1e297dd95dd593fb107f1f2943`.
+The archive is an unpublished review artifact, not an upstream release.
 
 | Case | Result |
 | --- | --- |
@@ -67,8 +74,8 @@ These are new original-ID contribution results, not inherited NSBC acceptance cl
 | Captured ESIR 1.4.0 native replacement, overload and depletion | Passed; eight handoffs, overload 4→5→4 with actual machine disable/recovery |
 | Captured ESIR native player matrix, transforms and reload | Passed; 12 player cases, 128 transforms and 131 reconciled beacon records |
 | Captured ESIR robot/platform and Alien repair-to-upgrade | Passed; 26 actor cases and six repair/upgrade cases |
-| English/German/Japanese rendering at three scales | Final receipts pending |
-| Captured ESIR two-client viewing/actions and disconnect/rejoin | Final receipts pending |
+| English/German/Japanese rendering at three scales | Passed all nine cases; 90 screenshots retained, with representative panels visually inspected |
+| Captured ESIR two-client viewing/actions and disconnect/rejoin | Passed with two actual clients at medium sprite resolution; no desync reported |
 
 The ESIR profile is a captured **1.4.0** snapshot with a private dependency switch to
 this candidate; 493 main source files were verified before the switch. This does not
@@ -76,6 +83,17 @@ certify unrelated later ESIR worktree changes. Controlled engine depletion measu
 Copper **4.9999988 nitrogen/s** and Iron **9.9999976 nitrogen/s**, matching 5/s and 10/s
 within native float precision. Displayed rates remain calculated operating requirements.
 Copper→Iron changes ESIR's overload weight from 1 to 2.
+
+The first full-consumer multiplayer attempt exhausted available memory while the second
+client built its sprite atlas, before joining. The isolated rerun used
+`--graphics-quality medium`, retaining the same gameplay profile and assertions, and
+passed simultaneous actions, disconnect cleanup and rejoin. Single-client panel captures
+use high sprite resolution. The initial standalone UI attempt also exposed a test-only
+terrain boundary: the replacement lane extended beyond its prepared grass. The fixture
+now prepares the complete replacement/reach area before evaluating native placement.
+The completed locale matrix reran that corrected fixture at all nine combinations.
+Repeated identical-source cases reused Factorio's validated sprite cache; receipts retain
+the source hashes, engine-reported locale/scale and actual native window geometry.
 
 All eight locales have 38 matching keys, no duplicate/empty entries and matching numbered
 placeholders. Rendered ESIR screenshots show opened panels and burning fuel with an empty
