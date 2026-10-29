@@ -620,7 +620,7 @@ script.on_nth_tick(ticks_per_update, function (event)
       local fuel_inventory = source.get_fuel_inventory()
       local contents = fuel_inventory and not fuel_inventory.is_empty() and fuel_inventory.get_contents()
       local fuel = contents and "[item=" .. contents[1].name .. "] x " .. tostring(contents[1].count)
-      local fluid = #source.fluidbox ~= 0 and (source.fluidbox[1] or {}) or nil
+      local fluid = source.fluids_count ~= 0 and (source.get_fluid(1) or {}) or nil
       local max_fluid_per_second = fluid and source.prototype.fluid_energy_source_prototype.fluid_usage_per_tick * 60
       local tooltip_data = tooltip_fields[beacon.name]
       local current_consumption = source.consumption_bonus == 0 and tooltip_data.max_consumption[beacon.quality.name] or
@@ -720,7 +720,7 @@ script.on_nth_tick(ticks_per_update, function (event)
                 {
                   "description.of",
                   ("%d"):format(fluid.amount),
-                  ("%d"):format(source.fluidbox.get_capacity(1))
+                  ("%d"):format(source.get_fluid_capacity(1))
                 }
               },
             } or "",
