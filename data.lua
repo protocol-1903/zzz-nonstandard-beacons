@@ -10,7 +10,7 @@ if settings.startup["nsb-include-example-beacons"].value then
       selection_box = {{-1.5, -1.5}, {1.5, 1.5}},
       drawing_box_vertical_extension = 0.7,
       allowed_effects = {"consumption", "speed", "pollution"},
-      graphics_set = require("__base__.prototypes.entity.beacon-animations"),
+      graphics_set = table.deepcopy(require("__base__.prototypes.entity.beacon-animations")),
       energy_usage = "480kW",
       energy_source = {
         type = "electric-2-electric-boogaloo",
@@ -43,7 +43,7 @@ if settings.startup["nsb-include-example-beacons"].value then
       selection_box = {{-1.5, -1.5}, {1.5, 1.5}},
       drawing_box_vertical_extension = 0.7,
       allowed_effects = {"consumption", "speed", "pollution"},
-      graphics_set = require("__base__.prototypes.entity.beacon-animations"),
+      graphics_set = table.deepcopy(require("__base__.prototypes.entity.beacon-animations")),
       energy_usage = "480kW",
       energy_source = {
         type = "burner",
@@ -85,7 +85,7 @@ if settings.startup["nsb-include-example-beacons"].value then
       selection_box = {{-1.5, -1.5}, {1.5, 1.5}},
       drawing_box_vertical_extension = 0.7,
       allowed_effects = {"consumption", "speed", "pollution"},
-      graphics_set = require("__base__.prototypes.entity.beacon-animations"),
+      graphics_set = table.deepcopy(require("__base__.prototypes.entity.beacon-animations")),
       energy_usage = "480kW",
       energy_source = {
         type = "fluid",
@@ -135,7 +135,7 @@ if settings.startup["nsb-include-example-beacons"].value then
       selection_box = {{-1.5, -1.5}, {1.5, 1.5}},
       drawing_box_vertical_extension = 0.7,
       allowed_effects = {"consumption", "speed", "pollution"},
-      graphics_set = require("__base__.prototypes.entity.beacon-animations"),
+      graphics_set = table.deepcopy(require("__base__.prototypes.entity.beacon-animations")),
       energy_usage = "48000kW",
       energy_source = {
         type = "heat",
@@ -252,30 +252,22 @@ if settings.startup["nsb-include-example-beacons"].value then
       results = {{type = "item", name = "heat-beacon", amount = 1}}
     },
   }
-
-  -- add beacon recipes to beacon tech
-  data.raw["technology"]["effect-transmission"].effects = {
-    {
-      type = "unlock-recipe",
-      recipe = "beacon"
-    },
-    {
-      type = "unlock-recipe",
-      recipe = "electric-beacon"
-    },
-    {
-      type = "unlock-recipe",
-      recipe = "burner-beacon"
-    },
-    {
-      type = "unlock-recipe",
-      recipe = "fluid-beacon"
-    },
-    {
-      type = "unlock-recipe",
-      recipe = "heat-beacon"
-    }
-  }
+-- NSB FILE MAP
+-- owns: optional example beacon prototypes, recipes and unlocks
+-- loaded_by: Factorio data stage
+-- cadence: prototype loading only
+-- forwarded_events: none
+-- storage_roots: none
+-- gui_ids: none
+-- remote_interfaces: none
+-- rebuild_on: prototype reload
+-- blueprint: docs/lifecycle.md#contract
+  -- Append examples without discarding vanilla or another consumer's unlocks.
+  local technology = data.raw.technology["effect-transmission"]
+  technology.effects = technology.effects or {}
+  for _, name in ipairs{"electric-beacon", "burner-beacon", "fluid-beacon", "heat-beacon"} do
+    technology.effects[#technology.effects + 1] = {type = "unlock-recipe", recipe = name}
+  end
 end
 
 -- Wait, that's it?

@@ -1,5 +1,14 @@
 [![ko-fi](https://img.shields.io/badge/Ko--fi-Donate%20-hotpink?logo=kofi&logoColor=white&style=for-the-badge)](https://ko-fi.com/protocol1903) [![](https://img.shields.io/badge/dynamic/json?color=orange&label=Factorio&query=downloads_count&suffix=%20downloads&url=https%3A%2F%2Fmods.factorio.com%2Fapi%2Fmods%2Fzzz-nonstandard-beacons&style=for-the-badge)](https://mods.factorio.com/mod/zzz-nonstandard-beacons) [![](https://img.shields.io/badge/Discord-Community-blue?style=for-the-badge)](https://discord.gg/K3fXMGVc4z) [![](https://img.shields.io/badge/Github-Source-green?style=for-the-badge)](https://github.com/protocol-1903/zzz-nonstandard-beacons)
 
+> **Review proposal — AI-assisted additions.** This branch offers the state-preservation,
+> orientation, information and validation work developed for Nonstandard Beacons Continued
+> as an optional contribution under Nonstandard Beacons' existing identity. The additions,
+> tests, documentation and translations were developed with substantial Codex AI assistance.
+> They are not attributed to protocol_1903 or the original contributors, and imply no
+> endorsement. The original README below, including its authorship statement, describes
+> the upstream work before this proposal. See the [review guide](docs/review-guide.md),
+> [migration contract](docs/migration.md) and [verification record](docs/testing.md).
+
 # This mod does not add new beacons unless you use the example mod setting. Another mod must be used to add new beacons.
 
 ### NOW WITH NO RUNTIME OVERHEAD! PLAYERS REJOICE WITH UPS FREE BEACONS!

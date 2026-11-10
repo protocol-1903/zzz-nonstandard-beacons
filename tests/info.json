@@ -1,0 +1,1 @@
+{"name":"nsbc-fixture","version":"0.0.1","factorio_version":"2.1","title":"NSBC isolated acceptance fixture","author":"Theorun","dependencies":["base >= 2.1.23","quality","zzz-nonstandard-beacons >= 1.0.0"]}

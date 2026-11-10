@@ -1,1 +1,4 @@
 *.zip
+.qc/
+dist/
+__pycache__/
