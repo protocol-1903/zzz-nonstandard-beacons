@@ -32,7 +32,8 @@ for index, metadata in pairs(storage) do
         if source.prototype.heat_energy_source_prototype then
           source_2.temperature = source.temperature
         elseif source.prototype.fluid_energy_source_prototype then
-          source_2.fluidbox[1] = source.fluidbox[1]
+          local fluid = source.get_fluid(1)
+          if fluid then source_2.set_fluid(1, fluid) end
         else -- must be a burner
           source_2.get_fuel_inventory().insert{
             name = source.get_fuel_inventory()[1].name,
