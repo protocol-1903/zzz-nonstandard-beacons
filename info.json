@@ -10,6 +10,6 @@
   "dependencies": [
     "base >= 2.1.0",
     "perel >= 1.2.3",
-    "? module-inserter >= 1.1.0"
+    "+ module-inserter >= 1.1.0"
   ]
 }

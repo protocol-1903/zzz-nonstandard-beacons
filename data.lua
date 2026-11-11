@@ -1,282 +1,373 @@
-if settings.startup["nsb-include-example-beacons"].value then
-  data:extend{
-    {
-      name = "electric-beacon",
-      type = "beacon",
-      icon = "__base__/graphics/icons/beacon.png",
-      flags = {"placeable-player", "player-creation"},
-      minable = {mining_time = 0.5, result = "electric-beacon"},
-      collision_box = {{-1.2, -1.2}, {1.2, 1.2}},
-      selection_box = {{-1.5, -1.5}, {1.5, 1.5}},
-      drawing_box_vertical_extension = 0.7,
-      allowed_effects = {"consumption", "speed", "pollution"},
-      graphics_set = require("__base__.prototypes.entity.beacon-animations"),
-      energy_usage = "480kW",
-      energy_source = {
-        type = "electric-2-electric-boogaloo",
-        usage_priority = "secondary-input",
-        drain = "20kW"
-      },
-      effect_receiver = {
-        uses_beacon_effects = true,
-        uses_module_effects = false,
-        uses_surface_effects = false
-      },
-      radius_visualisation_picture = {
-        filename = "__base__/graphics/entity/beacon/beacon-radius-visualization.png",
-        priority = "extra-high-no-scale",
-        width = 10,
-        height = 10
-      },
-      supply_area_distance = 3,
-      distribution_effectivity = 1.5,
-      module_slots = 2,
-      icons_positioning = {{inventory_index = defines.inventory.beacon_modules, shift = {0, 0}, multi_row_initial_height_modifier = -0.3, max_icons_per_row = 2}}
-    },
-    {
-      name = "burner-beacon",
-      type = "beacon",
-      icon = "__base__/graphics/icons/beacon.png",
-      flags = {"placeable-player", "player-creation"},
-      minable = {mining_time = 0.5, result = "burner-beacon"},
-      collision_box = {{-1.2, -1.2}, {1.2, 1.2}},
-      selection_box = {{-1.5, -1.5}, {1.5, 1.5}},
-      drawing_box_vertical_extension = 0.7,
-      allowed_effects = {"consumption", "speed", "pollution"},
-      graphics_set = require("__base__.prototypes.entity.beacon-animations"),
-      energy_usage = "480kW",
-      energy_source = {
-        type = "burner",
-        fuel_categories = {"chemical"},
-        effectivity = 1,
-        fuel_inventory_size = 1,
-        emissions_per_minute = { pollution = 30 },
-        smoke = {{
-          name = "smoke",
-          position = {0, 0},
-          frequency = 15,
-          starting_vertical_speed = 0.0,
-          starting_frame_deviation = 60
-        }}
-      },
-      effect_receiver = {
-        uses_beacon_effects = false,
-        uses_module_effects = true,
-        uses_surface_effects = false
-      },
-      radius_visualisation_picture = {
-        filename = "__base__/graphics/entity/beacon/beacon-radius-visualization.png",
-        priority = "extra-high-no-scale",
-        width = 10,
-        height = 10
-      },
-      supply_area_distance = 3,
-      distribution_effectivity = 1.5,
-      module_slots = 2,
-      icons_positioning = {{inventory_index = defines.inventory.beacon_modules, shift = {0, 0}, multi_row_initial_height_modifier = -0.3, max_icons_per_row = 2}}
-    },
-    {
-      name = "fluid-beacon",
-      type = "beacon",
-      icon = "__base__/graphics/icons/beacon.png",
-      flags = {"placeable-player", "player-creation"},
-      minable = {mining_time = 0.5, result = "fluid-beacon"},
-      collision_box = {{-1.2, -1.2}, {1.2, 1.2}},
-      selection_box = {{-1.5, -1.5}, {1.5, 1.5}},
-      drawing_box_vertical_extension = 0.7,
-      allowed_effects = {"consumption", "speed", "pollution"},
-      graphics_set = require("__base__.prototypes.entity.beacon-animations"),
-      energy_usage = "480kW",
-      energy_source = {
-        type = "fluid",
-        effectivity = 1,
-        maximum_temperature = 500,
-        fluid_box = {
-          volume = 200,
-          pipe_covers = pipecoverspictures(),
-          pipe_connections = {
-            { flow_direction = "input-output", direction = defines.direction.north, position = {0, -1} },
-            { flow_direction = "input-output", direction = defines.direction.south, position = {0, 1} }
-          },
-          production_type = "input",
-          filter = "steam"
-        },
-        smoke = {{
-          name = "smoke",
-          position = {0, 0},
-          frequency = 15,
-          starting_vertical_speed = 0.0,
-          starting_frame_deviation = 60
-        }}
-      },
-      effect_receiver = {
-        uses_beacon_effects = false,
-        uses_module_effects = true,
-        uses_surface_effects = false
-      },
-      radius_visualisation_picture = {
-        filename = "__base__/graphics/entity/beacon/beacon-radius-visualization.png",
-        priority = "extra-high-no-scale",
-        width = 10,
-        height = 10
-      },
-      supply_area_distance = 3,
-      distribution_effectivity = 1.5,
-      module_slots = 2,
-      icons_positioning = {{inventory_index = defines.inventory.beacon_modules, shift = {0, 0}, multi_row_initial_height_modifier = -0.3, max_icons_per_row = 2}}
-    },
-    {
-      name = "heat-beacon",
-      type = "beacon",
-      icon = "__base__/graphics/icons/beacon.png",
-      flags = {"placeable-player", "player-creation"},
-      minable = {mining_time = 0.5, result = "heat-beacon"},
-      collision_box = {{-1.2, -1.2}, {1.2, 1.2}},
-      selection_box = {{-1.5, -1.5}, {1.5, 1.5}},
-      drawing_box_vertical_extension = 0.7,
-      allowed_effects = {"consumption", "speed", "pollution"},
-      graphics_set = require("__base__.prototypes.entity.beacon-animations"),
-      energy_usage = "48000kW",
-      energy_source = {
-        type = "heat",
-        max_temperature = 1000,
-        specific_heat = "1MJ",
-        max_transfer = "2GW",
-        min_working_temperature = 500,
-        minimum_glow_temperature = 350,
-        connections = {
-          { position = {0, -1}, direction = defines.direction.north },
-          { position = {1, 0}, direction = defines.direction.east },
-          { position = {0, 1}, direction = defines.direction.south },
-          { position = {-1, 0}, direction = defines.direction.west }
-        }
-      },
-      effect_receiver = {
-        uses_beacon_effects = false,
-        uses_module_effects = true,
-        uses_surface_effects = false
-      },
-      radius_visualisation_picture = {
-        filename = "__base__/graphics/entity/beacon/beacon-radius-visualization.png",
-        priority = "extra-high-no-scale",
-        width = 10,
-        height = 10
-      },
-      supply_area_distance = 3,
-      distribution_effectivity = 1.5,
-      module_slots = 2,
-      icons_positioning = {{inventory_index = defines.inventory.beacon_modules, shift = {0, 0}, multi_row_initial_height_modifier = -0.3, max_icons_per_row = 2}}
-    },
-    {
-      name = "burner-beacon",
-      type = "item",
-      icon = "__base__/graphics/icons/beacon.png",
-      place_result = "burner-beacon",
-      stack_size = 20
-    },
-    {
-      name = "electric-beacon",
-      type = "item",
-      icon = "__base__/graphics/icons/beacon.png",
-      place_result = "electric-beacon",
-      stack_size = 20
-    },
-    {
-      name = "fluid-beacon",
-      type = "item",
-      icon = "__base__/graphics/icons/beacon.png",
-      place_result = "fluid-beacon",
-      stack_size = 20
-    },
-    {
-      name = "heat-beacon",
-      type = "item",
-      icon = "__base__/graphics/icons/beacon.png",
-      place_result = "heat-beacon",
-      stack_size = 20
-    },
-    {
-      type = "recipe",
-      name = "electric-beacon",
-      enabled = false,
-      energy_required = 15,
-      ingredients =
-      {
-        {type = "item", name = "electronic-circuit", amount = 20},
-        {type = "item", name = "advanced-circuit", amount = 20},
-        {type = "item", name = "steel-plate", amount = 10},
-        {type = "item", name = "copper-cable", amount = 10}
-      },
-      results = {{type = "item", name = "electric-beacon", amount = 1}}
-    },
-    {
-      type = "recipe",
-      name = "burner-beacon",
-      enabled = false,
-      energy_required = 15,
-      ingredients =
-      {
-        {type = "item", name = "electronic-circuit", amount = 20},
-        {type = "item", name = "advanced-circuit", amount = 20},
-        {type = "item", name = "steel-plate", amount = 10},
-        {type = "item", name = "copper-cable", amount = 10}
-      },
-      results = {{type = "item", name = "burner-beacon", amount = 1}}
-    },
-    {
-      type = "recipe",
-      name = "fluid-beacon",
-      enabled = false,
-      energy_required = 15,
-      ingredients =
-      {
-        {type = "item", name = "electronic-circuit", amount = 20},
-        {type = "item", name = "advanced-circuit", amount = 20},
-        {type = "item", name = "steel-plate", amount = 10},
-        {type = "item", name = "copper-cable", amount = 10}
-      },
-      results = {{type = "item", name = "fluid-beacon", amount = 1}}
-    },
-    {
-      type = "recipe",
-      name = "heat-beacon",
-      enabled = false,
-      energy_required = 15,
-      ingredients =
-      {
-        {type = "item", name = "electronic-circuit", amount = 20},
-        {type = "item", name = "advanced-circuit", amount = 20},
-        {type = "item", name = "steel-plate", amount = 10},
-        {type = "item", name = "copper-cable", amount = 10}
-      },
-      results = {{type = "item", name = "heat-beacon", amount = 1}}
-    },
-  }
+require "example"
 
-  -- add beacon recipes to beacon tech
-  data.raw["technology"]["effect-transmission"].effects = {
-    {
-      type = "unlock-recipe",
-      recipe = "beacon"
-    },
-    {
-      type = "unlock-recipe",
-      recipe = "electric-beacon"
-    },
-    {
-      type = "unlock-recipe",
-      recipe = "burner-beacon"
-    },
-    {
-      type = "unlock-recipe",
-      recipe = "fluid-beacon"
-    },
-    {
-      type = "unlock-recipe",
-      recipe = "heat-beacon"
-    }
-  }
+require "__perel__.util.general"
+
+local uses_module_effects = false
+
+local event_filter = {} --[[@as EventFilter]]
+local deconstruction_filter = {} --[[@as string[] ]]
+local custom_beacon_prototypes = {} --[[@as {[string]: CustomBeaconConfiguration}}]]
+local tooltip_fields = {}
+
+---@diagnostic disable-line: duplicate-doc-field
+---@class (partial) data.BeaconPrototype
+---@field effect_receiver data.EffectReceiver?
+---@field source_recipe string?
+---@field source_fluidboxes data.FluidBox[]?
+---@field energy_source data.EnergySource
+
+---@class CustomBeaconConfiguration
+---@field uses_module_effects boolean
+
+---@class (exact) NonstandardBeacons
+---@field process fun()
+NonstandardBeacons = {}
+
+NonstandardBeacons.process = function()
+  for p, prototype in pairs(data.raw.beacon) do
+    if prototype.energy_source.type ~= "void" and prototype.energy_source.type ~= "electric" then
+      ---@diagnostic disable-next-line: cast-type-mismatch
+      ---@cast prototype.energy_source data.EnergySource
+      -- validate optional properties
+      if prototype.effect_receiver and (prototype.effect_receiver.uses_beacon_effects or prototype.effect_receiver.uses_surface_effects) and prototype.effect_receiver.uses_module_effects then
+        error("Failed to load nonstandard beacon " .. p .. "\neffect_receiver.uses_beacon_effects and effect_receiver.uses_module_effects cannot be used together!")
+      end
+
+      -- replace electric boogaloo
+      prototype.energy_source.type = prototype.energy_source.type == "electric-2-electric-boogaloo" and "electric" or prototype.energy_source.type --[[@as "electric"|"void"|"burner"|"heat"|"fluid"]]
+
+      -- copy for ease of use
+      local effect_receiver = prototype.effect_receiver or {}
+      local recipe = prototype.source_recipe
+      prototype.source_recipe = nil
+      local source_fluidboxes = prototype.source_fluidboxes
+      prototype.source_fluidboxes = nil
+
+      -- store data for use during scripting
+      ---@diagnostic disable-next-line: missing-fields
+      local custom_beacon_configuration = {} --[[@as CustomBeaconConfiguration]]
+
+      event_filter[#event_filter+1] = {filter = "name", name = p}
+      deconstruction_filter[#deconstruction_filter+1] = p
+      custom_beacon_prototypes[p] = custom_beacon_configuration
+
+      custom_beacon_configuration.uses_module_effects = effect_receiver.uses_module_effects or false
+
+      -- update if the value is used anywhere
+      uses_module_effects = uses_module_effects or custom_beacon_configuration.uses_module_effects
+
+      -- create energy source entity, storing the 'disabled' localisation to simplify runtime scripting
+      data:extend{{
+        type = "assembling-machine",
+        name = p .. "-source",
+        localised_name = prototype.localised_name or {"?", {"item-name." .. p}, {"entity-name." .. p}},
+        localised_description = prototype.localised_description or {"?", {"item-description." .. p}, {"entity-description." .. p}},
+        icon = prototype.icon,
+        minable = prototype.minable,
+        icon_size = prototype.icon_size,
+        icons = prototype.icons,
+        energy_usage = prototype.energy_usage,
+        energy_source = prototype.energy_source,
+        crafting_categories = {"nsb-filler-category"},
+        fixed_recipe = recipe or "nsb-filler-recipe",
+        fluid_boxes = source_fluidboxes,
+        crafting_speed = 1,
+        create_corpse_on_death = false,
+        flags = {
+          "placeable-off-grid",
+          "not-repairable",
+          "not-on-map",
+          "not-blueprintable",
+          "not-deconstructable",
+          "no-copy-paste",
+          "not-upgradable",
+          "placeable-neutral"
+        },
+        icon_draw_specification = {scale = 0, scale_for_many = 0},
+        icons_positioning = {{inventory_index = defines.inventory.crafter_modules, scale = 0}},
+        selectable_in_game = false,
+        allow_copy_paste = false,
+        effect_receiver = {
+          uses_beacon_effects = effect_receiver.uses_beacon_effects or false,
+          uses_module_effects = effect_receiver.uses_module_effects or false,
+          uses_surface_effects = effect_receiver.uses_surface_effects or false
+        },
+        module_slots = effect_receiver.uses_module_effects and prototype.module_slots or 0, -- only copy if it uses module effects
+        allowed_effects = {"consumption", "pollution", "speed", "productivity", "quality"},
+        quality_affects_energy_usage = true,
+        collision_box = prototype.collision_box,
+        collision_mask = { layers = {} },
+        selection_box = prototype.selection_box,
+        selection_priority = (prototype.selection_priority or 50) - 1,
+        hidden = true,
+        hidden_in_factoriopedia = true
+      }}
+
+      local source = data.raw["assembling-machine"][p .. "-source"]
+
+      -- change the beacon to be non-interactible by inserters if burner powered
+      if prototype.energy_source.type == "burner" then
+        prototype.flags = prototype.flags or {}
+        prototype.flags[#prototype.flags+1] = "no-automated-item-insertion"
+        prototype.flags[#prototype.flags+1] = "no-automated-item-removal"
+      else -- allow module insertion if not a burner
+        source.flags[#source.flags+1] = "no-automated-item-insertion"
+        source.flags[#source.flags+1] = "no-automated-item-removal"
+      end
+
+      -- override the energy source
+      prototype.energy_source = {type = "void"}
+
+      -- clear custom flags
+      prototype.effect_receiver = nil
+
+      -- set custom tooltip data
+      local fields = prototype.custom_tooltip_fields or {}
+      -- module/beacon effectiveness on the beacon
+      fields[#fields + 1] = source.module_slots > 0 and {
+        name = "",
+        value = {"custom-tooltip.affected-by-modules"}
+      } or nil
+      fields[#fields + 1] = effect_receiver and effect_receiver.uses_beacon_effects and {
+        name = "",
+        value = {"custom-tooltip.affected-by-beacons"}
+      } or nil
+
+      prototype.custom_tooltip_fields = #fields ~= 0 and fields or nil
+
+      local source_type = source.energy_source.type
+      local fuel_category = #(source.energy_source.fuel_categories or {}) == 1 and source.energy_source.fuel_categories[1] or nil
+      local fluid_filter = source_type == "fluid" and source.energy_source.fluid_box.filter or nil
+      local tooltip_category = data.raw.sprite["tooltip-category-" .. (fuel_category or fluid_filter or "")] and
+        "tooltip-category-" .. (fuel_category or fluid_filter) or "tooltip-category-consumes"
+      tooltip_fields[prototype.name] = {
+        low_status = -- status for when power is low
+          source_type == "burner" and "entity-status.no-fuel" or
+          source_type == "fluid" and "entity-status.no-input-fluid" or
+          source_type == "heat" and "entity-status.low-temperature" or
+          source_type == "electric" and "entity-status.low-power",
+        header = {
+          "custom-tooltip.font-header",
+          source_type == "burner" and {
+            "",
+            "[img=" .. tooltip_category .. "] ",
+            {"tooltip-category.consumes"},
+            " ",
+            fuel_category and {"fuel-category-name." .. fuel_category}
+          } or
+          source_type == "fluid" and {
+            "",
+            "[img=" .. tooltip_category .. "] ",
+            {"tooltip-category.consumes"},
+            " ",
+            fluid_filter and {"fluid-name." .. fluid_filter} or {"tooltip-category.fluid"}
+          } or
+          source_type == "heat" and {
+            "",
+            "[img=tooltip-category-heat] ",
+            {"tooltip-category.consumes"},
+            " ",
+            {"tooltip-category.heat"}
+          } or
+          source_type == "electric" and {
+            "",
+            "[img=tooltip-category-electricity] ",
+            {"tooltip-category.consumes"}, 
+            " ",
+            {"tooltip-category.electricity"}
+          },
+        },
+        max_consumption = {}, -- a property of all sources. differs per quality level
+        drain = -- only a property of electric sources
+          source.energy_source.drain and perel.calculate_power(perel.parse_power(source.energy_source.drain)) or false,
+        max_temperature = -- only applies to fluid sources when burns_fluid is false
+          source.energy_source.maximum_temperature and {
+            "",
+            "\n",
+            {"description.maximum-temperature"},
+            ": ",
+            {
+              "custom-tooltip.font-normal",
+              {
+                "",
+                ("%d"):format(source.energy_source.maximum_temperature),
+                {"si-unit-degree-celsius"}
+              }
+            }
+          } or "",
+        min_temperature = -- only applies to heat sources, specifies minimum working temperature
+          source.energy_source.min_working_temperature and {
+            "",
+            "\n",
+            {"description.minimum-temperature"},
+            ": ",
+            {
+              "custom-tooltip.font-normal",
+              {
+                "",
+                tostring(source.energy_source.min_working_temperature),
+                {"si-unit-degree-celsius"}
+              }
+            }
+          } or ""
+      }
+      for _, quality in pairs(data.raw.quality or {}) do
+        if quality.name ~= "quality-unknown" then
+          tooltip_fields[prototype.name].max_consumption[quality.name] =
+            perel.calculate_power(perel.parse_power(prototype.energy_usage) * (quality.crafting_machine_energy_usage_multiplier or 1))
+        end
+      end
+    end
+  end
+
+  -- verify quality if uses_module_effects is active
+  if uses_module_effects then
+    for p, prototype in pairs(data.raw.quality or {}) do
+      if (prototype.crafting_machine_module_slots_bonus or 0) < (prototype.beacon_module_slots_bonus or 0) then
+        if settings.startup["nsb-override-quality"].value then
+          prototype.crafting_machine_module_slots_bonus = prototype.beacon_module_slots_bonus
+        else
+          error("\n\nFailed to load quality [" .. p .. "], crafting_machine_module_slots_bonus must not be less than beacon_module_slots_bonus! Optionally, turn on the mod setting to override quality values.\n\n")
+        end
+      end
+    end
+  end
 end
 
--- Wait, that's it?
--- Yup. Just define your beacons as normal (minus the energy_source, of course) before data-final-fixes.lua and this mod will handle the rest!
+data:extend{
+  {
+    type = "recipe-category",
+    name = "nsb-filler-category",
+    hidden = true,
+    hidden_in_factoriopedia = true
+  },
+  {
+    type = "recipe",
+    name = "nsb-filler-recipe",
+    icon = util.empty_icon().icon,
+    categories = {"nsb-filler-category"},
+    hidden = true,
+    hidden_in_factoriopedia = true
+  },
+  { -- hidden recipe used to check if machine is working
+    type = "recipe",
+    name = "nsb-internal-recipe",
+    icon = util.empty_icon().icon,
+    categories = {"nsb-filler-category"},
+    raise_on_crafted = true,
+    hidden = true,
+    hidden_in_factoriopedia = true
+  },
+  { -- hidden item for signals, can use existing item but this one is garunteed to work
+    type = "item",
+    name = "nsb-internal-item",
+    icon = util.empty_icon().icon,
+    stack_size = 1,
+    hidden = true,
+    hidden_in_factoriopedia = true
+  },
+  { -- hidden assembling machine to craft the aforementioned recipe
+    type = "assembling-machine",
+    name = "nsb-internal-manager",
+    icon = util.empty_icon().icon,
+    collision_mask = {layers = {}},
+    flags = {
+      "placeable-off-grid",
+      "not-repairable",
+      "not-on-map",
+      "not-blueprintable",
+      "not-deconstructable",
+      "no-copy-paste",
+      "not-upgradable",
+      "placeable-neutral",
+      "no-automated-item-removal",
+      "no-automated-item-insertion"
+    },
+    allow_copy_paste = false,
+    selectable_in_game = false,
+    energy_usage = "1W",
+    energy_source = {type = "void"},
+    crafting_categories = {"nsb-filler-category"},
+    fixed_recipe = "nsb-internal-recipe",
+    crafting_speed = 60,
+    hidden = true,
+    hidden_in_factoriopedia = true
+  },
+  { -- hidden proxy container to monitor module inventory
+    type = "proxy-container",
+    name = "nsb-internal-monitor",
+    icon = util.empty_icon().icon,
+    draw_inventory_content = false,
+    collision_mask = {layers = {}},
+    flags = {
+      "not-rotatable",
+      "placeable-neutral",
+      "placeable-off-grid",
+      "not-repairable",
+      "not-on-map",
+      "not-deconstructable",
+      "not-blueprintable",
+      "hide-alt-info",
+      "not-upgradable"
+    },
+    allow_copy_paste = false,
+    selectable_in_game = false,
+    hidden = true,
+    hidden_in_factoriopedia = true
+  },
+  { -- hidden combinator to mimic negative of network state
+    type = "constant-combinator",
+    name = "nsb-internal-mimic",
+    icon = util.empty_icon().icon,
+    collision_mask = {layers = {}},
+    activity_led_light_offsets = {{0, 0}, {0, 0}, {0, 0}, {0, 0}},
+    circuit_wire_connection_points = {{wire = {}, shadow = {}}, {wire = {}, shadow = {}}, {wire = {}, shadow = {}}, {wire = {}, shadow = {}}},
+    flags = {
+      "not-rotatable",
+      "placeable-neutral",
+      "placeable-off-grid",
+      "not-repairable",
+      "not-on-map",
+      "not-deconstructable",
+      "not-blueprintable",
+      "hide-alt-info",
+      "not-upgradable"
+    },
+    allow_copy_paste = false,
+    selectable_in_game = false,
+    hidden = true,
+    hidden_in_factoriopedia = true
+  },
+  { -- smuggle some simple data to runtime
+    type = "mod-data",
+    name = "zzz-nonstandard-beacons",
+    data = {
+      event_filter = event_filter,
+      deconstruction_filter = deconstruction_filter,
+      custom_beacon_prototypes = custom_beacon_prototypes,
+      tooltip_fields = tooltip_fields
+    },
+    hidden = true,
+    hidden_in_factoriopedia = true
+  },
+  { -- custom rotation handler for beacons
+    type = "custom-input",
+    name = "nsb-beacon-rotate",
+    key_sequence = "",
+    linked_game_control = "rotate",
+    include_selected_prototype = true,
+    action = "lua",
+    hidden = true,
+    hidden_in_factoriopedia = true
+  },
+  { -- custom counterrotation handler for beacons
+    type = "custom-input",
+    name = "nsb-beacon-rotate-reverse",
+    key_sequence = "",
+    linked_game_control = "reverse-rotate",
+    include_selected_prototype = true,
+    action = "lua",
+    hidden = true,
+    hidden_in_factoriopedia = true
+  }
+}

@@ -1,8 +1,10 @@
 ---------------------------------------------------------------------------------------------------
 Version: 2.0.1
-Date: ????
+Date: 2026-11-10
   Changes:
     - Removed unused things dependancy
+    - Added NonstandardBeacons.process() to data stage. This is for mods that automatically generate/edit nonstandard beacons, they can call this at the end of data-final-fixes to catch cases where that mod runs after nonstandard beacons. Not required other mods.
+    - Changed module inserter to a recommended dependancy
 ---------------------------------------------------------------------------------------------------
 Version: 2.0.0
 Date: 2026-10-25

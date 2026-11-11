@@ -11,6 +11,10 @@ You can now create and run non-electric beacons, and this mod will handle all ru
 ## Use
 WHEN ADDING THE MOD AS A REQUIREMENT, MAKE SURE TO MAKE IT NOT LOAD ORDER AFFECTING (i.e. "~ zzz-nonstandard-beacons")
 
+For mods that generate/edit beacons in data-final-fixes, call `NonstandardBeacons.process()` at the end to catch all the edits!
+
+See `example.lua` for an example implementation.
+
 Define your beacon entity like normal, but when setting the energy_source just define it as a fluid, heat, or burner variant (OR custom electric using "electric-2-electric-boogaloo"). Like so:
 
 ```
@@ -50,7 +54,7 @@ Nonstandard Beacons includes some new features that you can use on custom beacon
 - You must use the custom energy source `"electric-2-electric-boogaloo"` to use any of the other additional features on an electrically powered beacon.
 
 ## Coming soon, whenever i have time to implement
-- Sources with byproducts (like fusion power)
+- ~~Sources with byproducts (like fusion power)~~ Implemented with 2.1!
 - Secondary source requirements (powered by fluids and items, etc)
 - Multi fuel souces (like thrusters)
 
